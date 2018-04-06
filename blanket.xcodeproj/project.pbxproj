@@ -160,15 +160,15 @@
 		554B40A8202D4D030069E646 /* blanket */ = {
 			isa = PBXGroup;
 			children = (
-				55D3893B203386D7003B8F1D /* blanket.entitlements */,
 				554B40A9202D4D030069E646 /* AppDelegate.h */,
 				554B40AA202D4D030069E646 /* AppDelegate.m */,
+				554B40B2202D4D030069E646 /* Assets.xcassets */,
+				554B40B7202D4D030069E646 /* Info.plist */,
+				554B40B4202D4D030069E646 /* LaunchScreen.storyboard */,
+				554B40AF202D4D030069E646 /* Main.storyboard */,
 				554B40AC202D4D030069E646 /* ViewController.h */,
 				554B40AD202D4D030069E646 /* ViewController.m */,
-				554B40AF202D4D030069E646 /* Main.storyboard */,
-				554B40B2202D4D030069E646 /* Assets.xcassets */,
-				554B40B4202D4D030069E646 /* LaunchScreen.storyboard */,
-				554B40B7202D4D030069E646 /* Info.plist */,
+				55D3893B203386D7003B8F1D /* blanket.entitlements */,
 				554B40B8202D4D030069E646 /* main.m */,
 			);
 			path = blanket;

