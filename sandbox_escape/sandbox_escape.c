@@ -8,6 +8,7 @@
 #include "log/log.h"
 #include "reportcrash/reportcrash.h"
 #include "sandbox_escape/exception_server.h"
+#include "sandbox_escape/mach_message.h"
 #include "sandbox_escape/mach_service_mitm.h"
 #include "sandbox_escape/threadexec_routines.h"
 
