@@ -12,6 +12,14 @@
 bool threadexec_task_for_pid_remote(threadexec_t threadexec, int pid, mach_port_t *task_remote);
 
 /*
+ * threadexec_task_for_pid
+ *
+ * Description:
+ * 	A threadexec wrapper for task_for_pid(). The task port is copied to the current task.
+ */
+bool threadexec_task_for_pid(threadexec_t threadexec, int pid, mach_port_t *task);
+
+/*
  * threadexec_host_set_exception_ports
  *
  * Description:
@@ -106,5 +114,26 @@ bool threadexec_list_pids_with_paths(threadexec_t threadexec,
  */
 bool threadexec_pids_for_path(threadexec_t threadexec, const char *path,
 		pid_t *pids, size_t *count);
+
+/*
+ * threadexec_init_with_threadexec_and_pid
+ *
+ * Description:
+ * 	Use one threadexec to create another threadexec for another process.
+ *
+ * Parameters:
+ * 	threadexec			The threadexec context.
+ * 	pid				The PID of the process for which to create a new threadexec
+ * 					context.
+ *
+ * Returns:
+ * 	Returns a new threadexec context in the specified process on success and NULL on failure.
+ *
+ * Notes:
+ * 	This routine exists because I can't figure out how to implement thread hijacking in
+ * 	threadexec without corrupting the hijacked thread. Thus, we will use an existing threadexec
+ * 	to create the thread safely, and then we will create the threadexec as usual.
+ */
+threadexec_t threadexec_init_with_threadexec_and_pid(threadexec_t threadexec, pid_t pid);
 
 #endif

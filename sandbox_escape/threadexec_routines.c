@@ -1,6 +1,7 @@
 #include "sandbox_escape/threadexec_routines.h"
 
 #include "headers/libproc.h"
+#include "headers/mach_vm.h"
 #include "log/log.h"
 
 #include <assert.h>
@@ -28,6 +29,43 @@ threadexec_task_for_pid_remote(threadexec_t threadexec, int pid, mach_port_t *ta
 		ERROR_REMOTE_CALL_RETURN(task_for_pid, "%u", kr);
 		return false;
 	}
+	return true;
+}
+
+// Call task_for_pid in the threadexec task and copy the port to the local task.
+static bool
+threadexec_task_for_pid_local_and_remote(threadexec_t threadexec, int pid,
+		mach_port_t *task_l, mach_port_t *task_r) {
+	// Get the task port for the process in the remote task.
+	mach_port_t task_r0;
+	bool ok = threadexec_task_for_pid_remote(threadexec, pid, &task_r0);
+	if (!ok) {
+		ERROR_REMOTE_CALL_RETURN(task_for_pid, "invalid port 0x%x", task_r0);
+		goto fail_0;
+	}
+	// Copy the task port locally.
+	ok = threadexec_mach_port_extract(threadexec, task_r0, task_l, MACH_MSG_TYPE_COPY_SEND);
+	if (!ok) {
+		ERROR("Could not copy task port locally");
+		goto fail_1;
+	}
+	// Success.
+	*task_r = task_r0;
+	return true;
+fail_1:
+	threadexec_mach_port_deallocate(threadexec, task_r0);
+fail_0:
+	return false;
+}
+
+bool
+threadexec_task_for_pid(threadexec_t threadexec, int pid, mach_port_t *task) {
+	mach_port_t task_r;
+	bool success = threadexec_task_for_pid_local_and_remote(threadexec, pid, task, &task_r);
+	if (!success) {
+		return false;
+	}
+	threadexec_mach_port_deallocate(threadexec, task_r);
 	return true;
 }
 
@@ -348,4 +386,90 @@ threadexec_pids_for_path(threadexec_t threadexec, const char *path,
 	*count = matches;
 	free(all_pids);
 	return true;
+}
+
+threadexec_t
+threadexec_init_with_threadexec_and_pid(threadexec_t threadexec, pid_t pid) {
+	threadexec_t new_threadexec = NULL;
+	// Get the task port for the process both locally and in the threadexec.
+	mach_port_t task, task_r;
+	bool ok = threadexec_task_for_pid_local_and_remote(threadexec, pid, &task, &task_r);
+	if (!ok) {
+		ERROR("Could not get task port for PID %u", pid);
+		goto fail_0;
+	}
+	// Use the threadexec to create a thread in the process.
+	kern_return_t kr;
+	mach_port_t thread_r;
+	ok = threadexec_call_cv(threadexec, &kr, sizeof(kr),
+			thread_create, 2,
+			TX_CARG_LITERAL(mach_port_t, task_r),
+			TX_CARG_PTR_LITERAL_OUT(mach_port_t *, &thread_r));
+	if (!ok) {
+		ERROR_REMOTE_CALL(thread_create);
+		goto fail_1;
+	}
+	if (kr != KERN_SUCCESS) {
+		ERROR_REMOTE_CALL_RETURN(thread_create, "%u", kr);
+		goto fail_1;
+	}
+	// Copy the thread locally.
+	mach_port_t thread;
+	ok = threadexec_mach_port_extract(threadexec, thread_r, &thread, MACH_MSG_TYPE_COPY_SEND);
+	if (!ok) {
+		ERROR("Could not copy thread port locally");
+		goto fail_2;
+	}
+	// Threads created with thread_create() don't have a stack. Allocate memory for a stack in
+	// the target process.
+	mach_vm_address_t stack_address = 0;
+	mach_vm_size_t stack_size = 0x8000;
+	ok = threadexec_call_cv(threadexec, &kr, sizeof(kr),
+			mach_vm_allocate, 4,
+			TX_CARG_LITERAL(mach_port_t, task_r),
+			TX_CARG_PTR_LITERAL_INOUT(mach_vm_address_t *, &stack_address),
+			TX_CARG_LITERAL(mach_vm_size_t, stack_size),
+			TX_CARG_LITERAL(int, VM_FLAGS_ANYWHERE));
+	if (!ok) {
+		ERROR_REMOTE_CALL(mach_vm_allocate);
+		goto fail_3;
+	}
+	if (kr != KERN_SUCCESS) {
+		ERROR_REMOTE_CALL_RETURN(mach_vm_allocate, "%u", kr);
+		goto fail_3;
+	}
+	// Set the SP register in the new thread to the top of our new stack.
+	arm_thread_state64_t state = {};
+	state.__sp = stack_address + stack_size - 0x100;
+	kr = thread_set_state(thread, ARM_THREAD_STATE64, (thread_state_t) &state,
+			ARM_THREAD_STATE64_COUNT);
+	if (kr != KERN_SUCCESS) {
+		ERROR("Could not set thread state on new thread");
+		goto fail_4;
+	}
+	// Now we have a new bare thread that we can pass to the threadexec library.
+	new_threadexec = threadexec_init(task, thread, TX_BARE_THREAD | TX_KILL_THREAD);
+	if (new_threadexec == NULL) {
+		ERROR("Could not create execution context in PID %u", pid);
+	}
+fail_4:
+	// TODO: Deallocate the memory on failure.
+	// If we failed, terminate and deallocate the thread we created.
+	if (new_threadexec == NULL) {
+fail_3:
+		thread_terminate(thread);
+		mach_port_deallocate(mach_task_self(), thread);
+	}
+fail_2:
+	// Deallocate the thread port in the threadexec task.
+	threadexec_mach_port_deallocate(threadexec, thread_r);
+	// TODO: Kill the thread via the threadexec.
+fail_1:
+	// Deallocate the task port in the threadexec task and, on failure, in our task.
+	threadexec_mach_port_deallocate(threadexec, task_r);
+	if (new_threadexec == NULL) {
+		mach_port_deallocate(mach_task_self(), task);
+	}
+fail_0:
+	return new_threadexec;
 }
