@@ -57,6 +57,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		552968E720881CCB00580287 /* libproc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libproc.h; sourceTree = "<group>"; };
 		554B40A6202D4D030069E646 /* blanket.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = blanket.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		554B40A9202D4D030069E646 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		554B40AA202D4D030069E646 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -223,9 +224,10 @@
 		55D389192032C8A1003B8F1D /* headers */ = {
 			isa = PBXGroup;
 			children = (
-				55878CE3203E73D0005A4AF1 /* mach_vm.h */,
 				55D3891A2032C8D5003B8F1D /* bootstrap.h */,
 				55D3891B2032C8D5003B8F1D /* config.h */,
+				552968E720881CCB00580287 /* libproc.h */,
+				55878CE3203E73D0005A4AF1 /* mach_vm.h */,
 				55D3891C2032C8D5003B8F1D /* NSExtension.h */,
 				55D389432038E183003B8F1D /* sandbox.h */,
 			);

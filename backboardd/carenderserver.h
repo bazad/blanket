@@ -1,8 +1,6 @@
 #ifndef BACKBOARDD__CARENDERSERVER_H_
 #define BACKBOARDD__CARENDERSERVER_H_
 
-#include <stdbool.h>
-
 /*
  * CARENDERSERVER_SERVICE_NAME
  *

@@ -62,4 +62,49 @@ bool threadexec_task_mach_port_insert_right(threadexec_t threadexec, task_t task
 bool threadexec_task_mach_port_mod_refs(threadexec_t threadexec, task_t task_remote,
 		mach_port_name_t port_name, mach_port_right_t right, mach_port_delta_t delta);
 
+/*
+ * threadexec_list_pids_with_paths
+ *
+ * Description:
+ * 	Get a list of all PIDs and their corresponding executable path.
+ *
+ * Parameters:
+ * 	threadexec			The threadexec context.
+ * 	pids				On return, an array of PIDs of all processes.
+ * 	paths				On return, an array of the paths to the main executable of
+ * 					each process.
+ * 	count				On return, the number of elements in each array.
+ *
+ * Returns:
+ * 	Returns true on success.
+ *
+ * Notes:
+ * 	The pids array, the paths array, and the strings in the paths array all share the same
+ * 	underlying allocation. When no longer needed, all the memory can be released by freeing
+ * 	just the pids array.
+ *
+ */
+bool threadexec_list_pids_with_paths(threadexec_t threadexec,
+		pid_t **pids, char ***paths, size_t *count);
+
+/*
+ * threadexec_pids_for_path
+ *
+ * Description:
+ * 	Get a list of all PIDs of processes running the specified executable.
+ *
+ * Parameters:
+ * 	threadexec			The threadexec context.
+ * 	path				The path of the main process executable to search for.
+ * 	pids				An array to fill with the matching PIDs.
+ * 	count				On entry, the length of the pids array. On return, the
+ * 					true number of matching processes. If this value is larger
+ * 					on return, then some entries were omitted from the array.
+ *
+ * Returns:
+ * 	Returns true on success.
+ */
+bool threadexec_pids_for_path(threadexec_t threadexec, const char *path,
+		pid_t *pids, size_t *count);
+
 #endif

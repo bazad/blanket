@@ -1,9 +1,11 @@
 #include "sandbox_escape/threadexec_routines.h"
 
+#include "headers/libproc.h"
 #include "log/log.h"
 
 #include <assert.h>
 #include <stdlib.h>
+#include <sys/param.h>
 
 #define ERROR_REMOTE_CALL(fn)	\
 	ERROR("Could not call %s in remote task", #fn)
@@ -245,5 +247,105 @@ threadexec_task_mach_port_mod_refs(threadexec_t threadexec, task_t task_remote,
 		ERROR_REMOTE_CALL_RETURN(mach_port_mod_refs, "%u", kr);
 		return false;
 	}
+	return true;
+}
+
+bool
+threadexec_list_pids_with_paths(threadexec_t threadexec, pid_t **pids, char ***paths,
+		size_t *count) {
+	bool success = false;
+	// Call proc_listallpids(NULL, 0) to get the number of processes currently on the system.
+	int capacity;
+	bool ok = threadexec_call_cv(threadexec, &capacity, sizeof(count),
+			proc_listallpids, 2,
+			TX_CARG_LITERAL(void *, NULL),
+			TX_CARG_LITERAL(int, 0));
+	if (!ok || capacity <= 0) {
+		ERROR("Could not get the number of PIDs");
+		goto fail_0;
+	}
+	// Create an array in which to collect the PIDs.
+	capacity += 32;
+	assert(capacity > 0);
+	size_t all_pids_size = capacity * sizeof(pid_t);
+	pid_t *all_pids = malloc(all_pids_size);
+	assert(all_pids != NULL);
+	// Call proc_listallpids again to collect the PIDs.
+	int all_count;
+	ok = threadexec_call_cv(threadexec, &all_count, sizeof(all_count),
+			proc_listallpids, 2,
+			TX_CARG_PTR_DATA_OUT(void *, all_pids, all_pids_size),
+			TX_CARG_LITERAL(int, all_pids_size));
+	if (!ok || all_count <= 0) {
+		ERROR("Could not collect the PIDs of currently running processes");
+		goto fail_1;
+	}
+	// Now create the final memory buffer. We assume a full MAXPATHLEN for each path for
+	// simplicity.
+	size_t size = ((all_count + 1) & ~1) * sizeof(pid_t)
+		+ all_count * sizeof(char *)
+		+ all_count * MAXPATHLEN;
+	pid_t *pids_array = malloc(size);
+	assert(pids_array != NULL);
+	char **paths_array = (char **)(pids_array + ((all_count + 1) & ~1));
+	char *pathbuf = (char *)(paths_array + all_count);
+	// Fill the array with the path of each PID. We walk the array in reverse because
+	// proc_listallpids seems to return the PIDs in reverse order.
+	size_t out_idx = 0;
+	for (int i = all_count - 1; i >= 0; i--, out_idx++) {
+		assert(pathbuf < (char *)pids_array + size);
+		// Fill in the pids and paths array entries.
+		pids_array[out_idx] = all_pids[i];
+		paths_array[out_idx] = pathbuf;
+		// Call proc_pidpath to get the path of the PID.
+		int len;
+		ok = threadexec_call_cv(threadexec, &len, sizeof(len),
+				proc_pidpath, 3,
+				TX_CARG_LITERAL(int, all_pids[i]),
+				TX_CARG_PTR_DATA_OUT(void *, pathbuf, MAXPATHLEN),
+				TX_CARG_LITERAL(uint32_t, MAXPATHLEN));
+		if (!ok || len <= 0) {
+			pathbuf[0] = 0;
+		}
+		pathbuf += MAXPATHLEN;
+	}
+	assert(all_count == out_idx);
+	// Set the output parameters.
+	*pids = pids_array;
+	*paths = paths_array;
+	*count = all_count;
+	success = true;
+fail_1:
+	free(all_pids);
+fail_0:
+	return success;
+}
+
+bool
+threadexec_pids_for_path(threadexec_t threadexec, const char *path,
+		pid_t *pids, size_t *count) {
+	// Get the list of all processes.
+	pid_t *all_pids;
+	char **all_paths;
+	size_t all_count;
+	bool ok = threadexec_list_pids_with_paths(threadexec, &all_pids, &all_paths, &all_count);
+	if (!ok) {
+		return false;
+	}
+	// Now copy the PIDs with a matching path into the array.
+	pid_t *end = pids + *count;
+	size_t matches = 0;
+	for (size_t i = 0; i < all_count; i++) {
+		if (strcmp(path, all_paths[i]) == 0) {
+			matches++;
+			if (pids < end) {
+				*pids = all_pids[i];
+				pids++;
+			}
+		}
+	}
+	// Set count to the number of matches.
+	*count = matches;
+	free(all_pids);
 	return true;
 }
