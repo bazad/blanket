@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		552968EC20892D0500580287 /* amfid_codesign_bypass.c in Sources */ = {isa = PBXBuildFile; fileRef = 552968EB20892D0500580287 /* amfid_codesign_bypass.c */; };
 		554B40AB202D4D030069E646 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 554B40AA202D4D030069E646 /* AppDelegate.m */; };
 		554B40AE202D4D030069E646 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 554B40AD202D4D030069E646 /* ViewController.m */; };
 		554B40B1202D4D030069E646 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 554B40AF202D4D030069E646 /* Main.storyboard */; };
@@ -58,6 +59,8 @@
 
 /* Begin PBXFileReference section */
 		552968E720881CCB00580287 /* libproc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libproc.h; sourceTree = "<group>"; };
+		552968EA20892D0500580287 /* amfid_codesign_bypass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amfid_codesign_bypass.h; sourceTree = "<group>"; };
+		552968EB20892D0500580287 /* amfid_codesign_bypass.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amfid_codesign_bypass.c; sourceTree = "<group>"; };
 		554B40A6202D4D030069E646 /* blanket.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = blanket.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		554B40A9202D4D030069E646 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		554B40AA202D4D030069E646 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -129,9 +132,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		552968E920892CCB00580287 /* amfid */ = {
+			isa = PBXGroup;
+			children = (
+				552968EB20892D0500580287 /* amfid_codesign_bypass.c */,
+				552968EA20892D0500580287 /* amfid_codesign_bypass.h */,
+			);
+			path = amfid;
+			sourceTree = "<group>";
+		};
 		554B409D202D4D030069E646 = {
 			isa = PBXGroup;
 			children = (
+				552968E920892CCB00580287 /* amfid */,
 				55D389482038E3D9003B8F1D /* backboardd */,
 				554B40A8202D4D030069E646 /* blanket */,
 				55D389442038E269003B8F1D /* druid */,
@@ -425,6 +438,7 @@
 				55D38956203BD72E003B8F1D /* threadexec_routines.c in Sources */,
 				55D389182032C7FC003B8F1D /* launchd_portrep.c in Sources */,
 				55D3894F2038EB49003B8F1D /* launchd_service.c in Sources */,
+				552968EC20892D0500580287 /* amfid_codesign_bypass.c in Sources */,
 				55D389422038DF67003B8F1D /* exception_server.c in Sources */,
 				55D3893F2038D04D003B8F1D /* mach_service_mitm.c in Sources */,
 			);

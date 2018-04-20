@@ -34,6 +34,20 @@ bool threadexec_host_set_exception_ports(
 		thread_state_flavor_t flavor);
 
 /*
+ * threadexec_task_set_exception_ports
+ *
+ * Description:
+ * 	A wrapper around task_set_exception_ports().
+ */
+bool threadexec_task_set_exception_ports(
+		threadexec_t          threadexec,
+		mach_port_t           task,
+		exception_mask_t      exception_mask,
+		mach_port_t           exception_port,
+		exception_behavior_t  behavior,
+		thread_state_flavor_t flavor);
+
+/*
  * threadexec_task_mach_port_names
  *
  * Description:
@@ -122,7 +136,8 @@ bool threadexec_pids_for_path(threadexec_t threadexec, const char *path,
  * 	Use one threadexec to create another threadexec for another process.
  *
  * Parameters:
- * 	threadexec			The threadexec context.
+ * 	threadexec			The privileged (task_for_pid, platform binary) threadexec
+ * 					context.
  * 	pid				The PID of the process for which to create a new threadexec
  * 					context.
  *

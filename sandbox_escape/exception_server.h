@@ -31,7 +31,7 @@ typedef bool (^catch_exception_block_t)(
  * Parameters:
  * 	exception_port			The Mach port to listen on.
  * 	timeout_ns			The amount of time to listen for a new message before
- * 					giving up.
+ * 					giving up. Pass 0 for no timeout.
  * 	exception_block			A block to invoke when exception messages are received.
  * 					Once the block returns true, all further exception messages
  * 					on the port will be rejected and exception_server()

@@ -8,8 +8,10 @@
 #include <stdlib.h>
 #include <sys/param.h>
 
+#define ERROR_REMOTE_CALL_S(fn)	\
+	ERROR("Could not call %s in remote task", fn)
 #define ERROR_REMOTE_CALL(fn)	\
-	ERROR("Could not call %s in remote task", #fn)
+	ERROR_REMOTE_CALL_S(#fn)
 #define ERROR_REMOTE_CALL_RETURN(fn, fmt, ret)	\
 	ERROR("Remote call to %s returned "fmt, #fn, ret)
 
@@ -69,23 +71,27 @@ threadexec_task_for_pid(threadexec_t threadexec, int pid, mach_port_t *task) {
 	return true;
 }
 
-bool
-threadexec_host_set_exception_ports(
+// A wrapper around {thread,task,host}_set_exception_ports().
+static bool
+threadexec_target_set_exception_ports_internal(
 		threadexec_t          threadexec,
-		mach_port_t           host_priv,
+		const void *          implementation,
+		const char *          implementation_name,
+		mach_port_t           receiver,
+		const char *          receiver_name,
 		exception_mask_t      exception_mask,
 		mach_port_t           exception_port,
 		exception_behavior_t  behavior,
 		thread_state_flavor_t flavor) {
 	bool success = false;
 	kern_return_t kr;
-	// First insert host_priv into the remote task.
-	mach_port_t host_priv_r;
-	bool ok = threadexec_mach_port_insert(threadexec, host_priv, &host_priv_r,
+	// First insert the receiver port into the remote task.
+	mach_port_t receiver_r;
+	bool ok = threadexec_mach_port_insert(threadexec, receiver, &receiver_r,
 			MACH_MSG_TYPE_COPY_SEND);
 	if (!ok) {
-		ERROR("Could not insert host-priv port into task 0x%x",
-				threadexec_task(threadexec));
+		ERROR("Could not insert %s port into task 0x%x",
+				receiver_name, threadexec_task(threadexec));
 		goto fail_0;
 	}
 	// Next insert the exception port into the remote task.
@@ -97,31 +103,73 @@ threadexec_host_set_exception_ports(
 				threadexec_task(threadexec));
 		goto fail_1;
 	}
-	// Finally call host_set_exception_ports().
+	// Finally call {thread,task,host}_set_exception_ports().
 	ok = threadexec_call_cv(threadexec, &kr, sizeof(kr),
-			host_set_exception_ports, 5,
-			TX_CARG_LITERAL(mach_port_t,           host_priv_r),
+			implementation, 5,
+			TX_CARG_LITERAL(mach_port_t,           receiver_r),
 			TX_CARG_LITERAL(exception_mask_t,      exception_mask),
 			TX_CARG_LITERAL(mach_port_t,           exception_port_r),
 			TX_CARG_LITERAL(exception_behavior_t,  behavior),
 			TX_CARG_LITERAL(thread_state_flavor_t, flavor));
 	if (!ok) {
-		ERROR_REMOTE_CALL(host_set_exception_ports);
+		ERROR_REMOTE_CALL_S(implementation_name);
 		goto fail_2;
 	}
 	if (kr != KERN_SUCCESS) {
 		ERROR("Remote call to %s returned %u in task 0x%x",
-				"host_set_exception_ports", kr, threadexec_task(threadexec));
+				implementation_name, kr, threadexec_task(threadexec));
 		goto fail_2;
 	}
 	// Did it!
 	success = true;
 fail_2:
+	// Deallocate the exception port reference.
 	threadexec_mach_port_deallocate(threadexec, exception_port_r);
 fail_1:
-	threadexec_mach_port_deallocate(threadexec, host_priv_r);
+	// Deallocate the receiver port reference.
+	threadexec_mach_port_deallocate(threadexec, receiver_r);
 fail_0:
 	return success;
+}
+
+bool
+threadexec_host_set_exception_ports(
+		threadexec_t          threadexec,
+		mach_port_t           host_priv,
+		exception_mask_t      exception_mask,
+		mach_port_t           exception_port,
+		exception_behavior_t  behavior,
+		thread_state_flavor_t flavor) {
+	return threadexec_target_set_exception_ports_internal(
+			threadexec,
+			host_set_exception_ports,
+			"host_set_exception_ports",
+			host_priv,
+			"host-priv",
+			exception_mask,
+			exception_port,
+			behavior,
+			flavor);
+}
+
+bool
+threadexec_task_set_exception_ports(
+		threadexec_t          threadexec,
+		mach_port_t           task,
+		exception_mask_t      exception_mask,
+		mach_port_t           exception_port,
+		exception_behavior_t  behavior,
+		thread_state_flavor_t flavor) {
+	return threadexec_target_set_exception_ports_internal(
+			threadexec,
+			task_set_exception_ports,
+			"task_set_exception_ports",
+			task,
+			"task",
+			exception_mask,
+			exception_port,
+			behavior,
+			flavor);
 }
 
 bool

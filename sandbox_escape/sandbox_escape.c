@@ -418,11 +418,8 @@ set_host_exception_port(struct sandbox_escape_context *context) {
 	// Now create a receive right that will be the new host-level exception handler for
 	// EXC_BAD_ACCESS.
 	mach_port_t new_exception_handler;
-	kr = mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE,
-			&new_exception_handler);
-	assert(kr == KERN_SUCCESS);
-	kr = mach_port_insert_right(mach_task_self(), new_exception_handler,
-			new_exception_handler, MACH_MSG_TYPE_MAKE_SEND);
+	mach_port_options_t options = { .flags = MPO_INSERT_SEND_RIGHT };
+	kr = mach_port_construct(mach_task_self(), &options, 0, &new_exception_handler);
 	assert(kr == KERN_SUCCESS);
 	context->new_host_exception_handler = new_exception_handler;
 	// Create a threadexec context for druid so that we can execute code in its context. We
