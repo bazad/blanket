@@ -16,9 +16,12 @@
 		554B40B9202D4D030069E646 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 554B40B8202D4D030069E646 /* main.m */; };
 		554F55502032B0790087BAC8 /* blanket_main.c in Sources */ = {isa = PBXBuildFile; fileRef = 554F554F2032B0790087BAC8 /* blanket_main.c */; };
 		554F55542032B2270087BAC8 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 554F55532032B2270087BAC8 /* log.c */; };
-		555C62B7208ACBF00070A236 /* payload in Resources */ = {isa = PBXBuildFile; fileRef = 555C62B6208ACBF00070A236 /* payload */; };
 		555C62BA208BA0830070A236 /* cdhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 555C62B9208BA0830070A236 /* cdhash.c */; };
+		555C6315208CEF110070A236 /* blanket_platform_payload.c in Sources */ = {isa = PBXBuildFile; fileRef = 555C6314208CEF110070A236 /* blanket_platform_payload.c */; };
+		555C631A208CF6770070A236 /* blanket_platform_payload in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 555C6311208CEF110070A236 /* blanket_platform_payload */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		55878CE2203E730A005A4AF1 /* xpc_crash.c in Sources */ = {isa = PBXBuildFile; fileRef = 55878CE1203E730A005A4AF1 /* xpc_crash.c */; };
+		558C0A77208D013A00EF6352 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 554F55532032B2270087BAC8 /* log.c */; };
+		558C0A79208D037400EF6352 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 558C0A78208D037400EF6352 /* log.c */; };
 		55D3890E2032C18D003B8F1D /* libthreadexec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 55D3890D2032C18D003B8F1D /* libthreadexec.a */; };
 		55D389162032C7FC003B8F1D /* launchd_portrep_crasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 55D389112032C7FC003B8F1D /* launchd_portrep_crasher.m */; };
 		55D389172032C7FC003B8F1D /* sandbox_escape.c in Sources */ = {isa = PBXBuildFile; fileRef = 55D389132032C7FC003B8F1D /* sandbox_escape.c */; };
@@ -36,6 +39,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		555C631B208CF6770070A236 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 554B409E202D4D030069E646 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 555C6310208CEF110070A236;
+			remoteInfo = blanket_platform_payload;
+		};
 		55D3892E2032D0F5003B8F1D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 554B409E202D4D030069E646 /* Project object */;
@@ -46,6 +56,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		555C631D208CF6770070A236 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				555C631A208CF6770070A236 /* blanket_platform_payload in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		55D389342032D0F5003B8F1D /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -77,13 +98,16 @@
 		554F554F2032B0790087BAC8 /* blanket_main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = blanket_main.c; sourceTree = "<group>"; };
 		554F55522032B2270087BAC8 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
 		554F55532032B2270087BAC8 /* log.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = log.c; sourceTree = "<group>"; };
-		555C62B6208ACBF00070A236 /* payload */ = {isa = PBXFileReference; lastKnownFileType = folder; path = payload; sourceTree = "<group>"; };
 		555C62B8208BA0830070A236 /* cdhash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cdhash.h; sourceTree = "<group>"; };
 		555C62B9208BA0830070A236 /* cdhash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cdhash.c; sourceTree = "<group>"; };
 		555C62BB208BBDB30070A236 /* cs_blobs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cs_blobs.h; sourceTree = "<group>"; };
+		555C6311208CEF110070A236 /* blanket_platform_payload */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = blanket_platform_payload; sourceTree = BUILT_PRODUCTS_DIR; };
+		555C6314208CEF110070A236 /* blanket_platform_payload.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = blanket_platform_payload.c; sourceTree = "<group>"; };
 		55878CE0203E730A005A4AF1 /* xpc_crash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xpc_crash.h; sourceTree = "<group>"; };
 		55878CE1203E730A005A4AF1 /* xpc_crash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xpc_crash.c; sourceTree = "<group>"; };
 		55878CE3203E73D0005A4AF1 /* mach_vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_vm.h; sourceTree = "<group>"; };
+		558C0A76208CFBB600EF6352 /* blanket_platform_payload.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = blanket_platform_payload.entitlements; sourceTree = "<group>"; };
+		558C0A78208D037400EF6352 /* log.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = log.c; sourceTree = "<group>"; };
 		55D3890D2032C18D003B8F1D /* libthreadexec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libthreadexec.a; path = ../threadexec/lib/libthreadexec.a; sourceTree = "<group>"; };
 		55D389102032C7FC003B8F1D /* launchd_portrep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = launchd_portrep.h; sourceTree = "<group>"; };
 		55D389112032C7FC003B8F1D /* launchd_portrep_crasher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = launchd_portrep_crasher.m; sourceTree = "<group>"; };
@@ -128,6 +152,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		555C630E208CEF110070A236 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		55D389232032D0F5003B8F1D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -152,12 +183,12 @@
 		554B409D202D4D030069E646 = {
 			isa = PBXGroup;
 			children = (
-				555C62B6208ACBF00070A236 /* payload */,
 				554B40A8202D4D030069E646 /* blanket */,
+				555C6312208CEF110070A236 /* blanket_platform_payload */,
 				55D389192032C8A1003B8F1D /* headers */,
 				55D389272032D0F5003B8F1D /* launchd_portrep_crasher */,
-				554B40A7202D4D030069E646 /* Products */,
 				55D3890C2032C18D003B8F1D /* Frameworks */,
+				554B40A7202D4D030069E646 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -166,6 +197,7 @@
 			children = (
 				554B40A6202D4D030069E646 /* blanket.app */,
 				55D389262032D0F5003B8F1D /* launchd_portrep_crasher.appex */,
+				555C6311208CEF110070A236 /* blanket_platform_payload */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -221,6 +253,16 @@
 				554B40AD202D4D030069E646 /* ViewController.m */,
 			);
 			path = app;
+			sourceTree = "<group>";
+		};
+		555C6312208CEF110070A236 /* blanket_platform_payload */ = {
+			isa = PBXGroup;
+			children = (
+				555C6314208CEF110070A236 /* blanket_platform_payload.c */,
+				558C0A78208D037400EF6352 /* log.c */,
+				558C0A76208CFBB600EF6352 /* blanket_platform_payload.entitlements */,
+			);
+			path = blanket_platform_payload;
 			sourceTree = "<group>";
 		};
 		55878CDF203E723C005A4AF1 /* xpc_crash */ = {
@@ -340,16 +382,34 @@
 				554B40A3202D4D030069E646 /* Frameworks */,
 				554B40A4202D4D030069E646 /* Resources */,
 				55D389342032D0F5003B8F1D /* Embed App Extensions */,
+				555C631D208CF6770070A236 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				55D3892F2032D0F5003B8F1D /* PBXTargetDependency */,
+				555C631C208CF6770070A236 /* PBXTargetDependency */,
 			);
 			name = blanket;
 			productName = blanket;
 			productReference = 554B40A6202D4D030069E646 /* blanket.app */;
 			productType = "com.apple.product-type.application";
+		};
+		555C6310208CEF110070A236 /* blanket_platform_payload */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 555C6317208CEF110070A236 /* Build configuration list for PBXNativeTarget "blanket_platform_payload" */;
+			buildPhases = (
+				555C630D208CEF110070A236 /* Sources */,
+				555C630E208CEF110070A236 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = blanket_platform_payload;
+			productName = blanket_platform_payload;
+			productReference = 555C6311208CEF110070A236 /* blanket_platform_payload */;
+			productType = "com.apple.product-type.library.dynamic";
 		};
 		55D389252032D0F5003B8F1D /* launchd_portrep_crasher */ = {
 			isa = PBXNativeTarget;
@@ -386,6 +446,10 @@
 							};
 						};
 					};
+					555C6310208CEF110070A236 = {
+						CreatedOnToolsVersion = 9.3;
+						ProvisioningStyle = Automatic;
+					};
 					55D389252032D0F5003B8F1D = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
@@ -412,6 +476,7 @@
 			targets = (
 				554B40A5202D4D030069E646 /* blanket */,
 				55D389252032D0F5003B8F1D /* launchd_portrep_crasher */,
+				555C6310208CEF110070A236 /* blanket_platform_payload */,
 			);
 		};
 /* End PBXProject section */
@@ -421,7 +486,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				555C62B7208ACBF00070A236 /* payload in Resources */,
 				554B40B6202D4D030069E646 /* LaunchScreen.storyboard in Resources */,
 				554B40B3202D4D030069E646 /* Assets.xcassets in Resources */,
 				554B40B1202D4D030069E646 /* Main.storyboard in Resources */,
@@ -464,6 +528,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		555C630D208CEF110070A236 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				558C0A79208D037400EF6352 /* log.c in Sources */,
+				558C0A77208D013A00EF6352 /* log.c in Sources */,
+				555C6315208CEF110070A236 /* blanket_platform_payload.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		55D389222032D0F5003B8F1D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -475,6 +549,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		555C631C208CF6770070A236 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 555C6310208CEF110070A236 /* blanket_platform_payload */;
+			targetProxy = 555C631B208CF6770070A236 /* PBXContainerItemProxy */;
+		};
 		55D3892F2032D0F5003B8F1D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 55D389252032D0F5003B8F1D /* launchd_portrep_crasher */;
@@ -644,6 +723,44 @@
 			};
 			name = Release;
 		};
+		555C6318208CEF110070A236 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = blanket_platform_payload/blanket_platform_payload.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = DEEG7TTSF2;
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				MACH_O_TYPE = mh_execute;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)";
+			};
+			name = Debug;
+		};
+		555C6319208CEF110070A236 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = blanket_platform_payload/blanket_platform_payload.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = DEEG7TTSF2;
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				MACH_O_TYPE = mh_execute;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)";
+			};
+			name = Release;
+		};
 		55D389322032D0F5003B8F1D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -691,6 +808,15 @@
 			buildConfigurations = (
 				554B40BD202D4D030069E646 /* Debug */,
 				554B40BE202D4D030069E646 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		555C6317208CEF110070A236 /* Build configuration list for PBXNativeTarget "blanket_platform_payload" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				555C6318208CEF110070A236 /* Debug */,
+				555C6319208CEF110070A236 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

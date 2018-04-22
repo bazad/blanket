@@ -98,7 +98,7 @@ blanket_main() {
 	if (reportcrash_tx == NULL) {
 		goto fail;
 	}
-	spawn_payload(reportcrash_tx, "payload/payload1");
+	spawn_payload(reportcrash_tx, "blanket_platform_payload");
 	threadexec_deinit(reportcrash_tx);
 fail:
 	DEBUG_TRACE(1, "%s: done", __func__);
