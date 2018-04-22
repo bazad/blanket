@@ -141,10 +141,10 @@
 		552968E920892CCB00580287 /* amfid */ = {
 			isa = PBXGroup;
 			children = (
-				552968EB20892D0500580287 /* amfid_codesign_bypass.c */,
 				552968EA20892D0500580287 /* amfid_codesign_bypass.h */,
-				555C62B9208BA0830070A236 /* cdhash.c */,
+				552968EB20892D0500580287 /* amfid_codesign_bypass.c */,
 				555C62B8208BA0830070A236 /* cdhash.h */,
+				555C62B9208BA0830070A236 /* cdhash.c */,
 			);
 			path = amfid;
 			sourceTree = "<group>";
@@ -153,19 +153,9 @@
 			isa = PBXGroup;
 			children = (
 				555C62B6208ACBF00070A236 /* payload */,
-				552968E920892CCB00580287 /* amfid */,
-				55D389482038E3D9003B8F1D /* backboardd */,
 				554B40A8202D4D030069E646 /* blanket */,
-				55D389442038E269003B8F1D /* druid */,
 				55D389192032C8A1003B8F1D /* headers */,
-				55D3894C2038E95D003B8F1D /* launchd */,
-				55D3890F2032C7A6003B8F1D /* launchd_portrep */,
 				55D389272032D0F5003B8F1D /* launchd_portrep_crasher */,
-				554F55512032B20A0087BAC8 /* log */,
-				554F554D2032B05D0087BAC8 /* main */,
-				55D3891D2032C8F7003B8F1D /* reportcrash */,
-				55D389212032CAC0003B8F1D /* sandbox_escape */,
-				55878CDF203E723C005A4AF1 /* xpc_crash */,
 				554B40A7202D4D030069E646 /* Products */,
 				55D3890C2032C18D003B8F1D /* Frameworks */,
 			);
@@ -183,14 +173,18 @@
 		554B40A8202D4D030069E646 /* blanket */ = {
 			isa = PBXGroup;
 			children = (
-				554B40A9202D4D030069E646 /* AppDelegate.h */,
-				554B40AA202D4D030069E646 /* AppDelegate.m */,
-				554B40B2202D4D030069E646 /* Assets.xcassets */,
+				555C630C208C80820070A236 /* app */,
+				552968E920892CCB00580287 /* amfid */,
+				55D389482038E3D9003B8F1D /* backboardd */,
+				55D389442038E269003B8F1D /* druid */,
+				55D3894C2038E95D003B8F1D /* launchd */,
+				55D3890F2032C7A6003B8F1D /* launchd_portrep */,
+				554F55512032B20A0087BAC8 /* log */,
+				55D3891D2032C8F7003B8F1D /* reportcrash */,
+				55D389212032CAC0003B8F1D /* sandbox_escape */,
+				554F554D2032B05D0087BAC8 /* main */,
+				55878CDF203E723C005A4AF1 /* xpc_crash */,
 				554B40B7202D4D030069E646 /* Info.plist */,
-				554B40B4202D4D030069E646 /* LaunchScreen.storyboard */,
-				554B40AF202D4D030069E646 /* Main.storyboard */,
-				554B40AC202D4D030069E646 /* ViewController.h */,
-				554B40AD202D4D030069E646 /* ViewController.m */,
 				55D3893B203386D7003B8F1D /* blanket.entitlements */,
 				554B40B8202D4D030069E646 /* main.m */,
 			);
@@ -215,11 +209,25 @@
 			path = log;
 			sourceTree = "<group>";
 		};
+		555C630C208C80820070A236 /* app */ = {
+			isa = PBXGroup;
+			children = (
+				554B40A9202D4D030069E646 /* AppDelegate.h */,
+				554B40AA202D4D030069E646 /* AppDelegate.m */,
+				554B40B2202D4D030069E646 /* Assets.xcassets */,
+				554B40B4202D4D030069E646 /* LaunchScreen.storyboard */,
+				554B40AF202D4D030069E646 /* Main.storyboard */,
+				554B40AC202D4D030069E646 /* ViewController.h */,
+				554B40AD202D4D030069E646 /* ViewController.m */,
+			);
+			path = app;
+			sourceTree = "<group>";
+		};
 		55878CDF203E723C005A4AF1 /* xpc_crash */ = {
 			isa = PBXGroup;
 			children = (
-				55878CE1203E730A005A4AF1 /* xpc_crash.c */,
 				55878CE0203E730A005A4AF1 /* xpc_crash.h */,
+				55878CE1203E730A005A4AF1 /* xpc_crash.c */,
 			);
 			path = xpc_crash;
 			sourceTree = "<group>";
@@ -235,10 +243,10 @@
 		55D3890F2032C7A6003B8F1D /* launchd_portrep */ = {
 			isa = PBXGroup;
 			children = (
+				55D389102032C7FC003B8F1D /* launchd_portrep.h */,
+				55D389152032C7FC003B8F1D /* launchd_portrep.c */,
 				55D389122032C7FC003B8F1D /* launchd_portrep_crasher.h */,
 				55D389112032C7FC003B8F1D /* launchd_portrep_crasher.m */,
-				55D389152032C7FC003B8F1D /* launchd_portrep.c */,
-				55D389102032C7FC003B8F1D /* launchd_portrep.h */,
 			);
 			path = launchd_portrep;
 			sourceTree = "<group>";
@@ -260,8 +268,8 @@
 		55D3891D2032C8F7003B8F1D /* reportcrash */ = {
 			isa = PBXGroup;
 			children = (
-				55D3891F2032C90B003B8F1D /* reportcrash.c */,
 				55D3891E2032C90B003B8F1D /* reportcrash.h */,
+				55D3891F2032C90B003B8F1D /* reportcrash.c */,
 			);
 			path = reportcrash;
 			sourceTree = "<group>";
@@ -269,16 +277,16 @@
 		55D389212032CAC0003B8F1D /* sandbox_escape */ = {
 			isa = PBXGroup;
 			children = (
-				55D389402038DF67003B8F1D /* exception_server.c */,
 				55D389412038DF67003B8F1D /* exception_server.h */,
-				55D38951203918D6003B8F1D /* mach_message.c */,
+				55D389402038DF67003B8F1D /* exception_server.c */,
 				55D38952203918D6003B8F1D /* mach_message.h */,
-				55D3893E2038D04D003B8F1D /* mach_service_mitm.c */,
+				55D38951203918D6003B8F1D /* mach_message.c */,
 				55D3893D2038D04D003B8F1D /* mach_service_mitm.h */,
-				55D389132032C7FC003B8F1D /* sandbox_escape.c */,
+				55D3893E2038D04D003B8F1D /* mach_service_mitm.c */,
 				55D389142032C7FC003B8F1D /* sandbox_escape.h */,
-				55D38954203BD72E003B8F1D /* threadexec_routines.c */,
+				55D389132032C7FC003B8F1D /* sandbox_escape.c */,
 				55D38955203BD72E003B8F1D /* threadexec_routines.h */,
+				55D38954203BD72E003B8F1D /* threadexec_routines.c */,
 			);
 			path = sandbox_escape;
 			sourceTree = "<group>";
@@ -297,8 +305,8 @@
 		55D389442038E269003B8F1D /* druid */ = {
 			isa = PBXGroup;
 			children = (
-				55D389452038E3A1003B8F1D /* druid.c */,
 				55D389462038E3A1003B8F1D /* druid.h */,
+				55D389452038E3A1003B8F1D /* druid.c */,
 			);
 			path = druid;
 			sourceTree = "<group>";
@@ -306,8 +314,8 @@
 		55D389482038E3D9003B8F1D /* backboardd */ = {
 			isa = PBXGroup;
 			children = (
-				55D389492038E49A003B8F1D /* carenderserver.c */,
 				55D3894A2038E49A003B8F1D /* carenderserver.h */,
+				55D389492038E49A003B8F1D /* carenderserver.c */,
 			);
 			path = backboardd;
 			sourceTree = "<group>";
@@ -315,8 +323,8 @@
 		55D3894C2038E95D003B8F1D /* launchd */ = {
 			isa = PBXGroup;
 			children = (
-				55D3894D2038EB49003B8F1D /* launchd_service.c */,
 				55D3894E2038EB49003B8F1D /* launchd_service.h */,
+				55D3894D2038EB49003B8F1D /* launchd_service.c */,
 			);
 			path = launchd;
 			sourceTree = "<group>";
