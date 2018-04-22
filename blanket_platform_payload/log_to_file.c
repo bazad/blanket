@@ -32,7 +32,8 @@ blanket_platform_payload_log(char type, const char *format, va_list ap) {
 __attribute__((constructor))
 static void
 init_logging() {
-	blanket_platform_payload_logfd = open("/var/root/blanket-log.txt", O_WRONLY | O_CREAT, 0644);
+	blanket_platform_payload_logfd = open("/var/root/blanket-log.txt",
+			O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	assert(blanket_platform_payload_logfd >= 0);
 	log_implementation = blanket_platform_payload_log;
 }
