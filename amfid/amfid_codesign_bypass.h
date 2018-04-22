@@ -7,7 +7,9 @@
  * amfid_codesign_bypass_install
  *
  * Description:
- * 	Install Ian Beer's codesigning bypass in amfid.
+ * 	Install Ian Beer's codesigning bypass in amfid. Also mark binaries validated by amfid as
+ * 	platform binaries, giving them the ability to manipulate task ports of other platform
+ * 	binaries.
  */
 bool amfid_codesign_bypass_install(threadexec_t priv_tx);
 
