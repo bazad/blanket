@@ -16,6 +16,8 @@
 		554B40B9202D4D030069E646 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 554B40B8202D4D030069E646 /* main.m */; };
 		554F55502032B0790087BAC8 /* blanket_main.c in Sources */ = {isa = PBXBuildFile; fileRef = 554F554F2032B0790087BAC8 /* blanket_main.c */; };
 		554F55542032B2270087BAC8 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 554F55532032B2270087BAC8 /* log.c */; };
+		555C62B7208ACBF00070A236 /* payload in Resources */ = {isa = PBXBuildFile; fileRef = 555C62B6208ACBF00070A236 /* payload */; };
+		555C62BA208BA0830070A236 /* cdhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 555C62B9208BA0830070A236 /* cdhash.c */; };
 		55878CE2203E730A005A4AF1 /* xpc_crash.c in Sources */ = {isa = PBXBuildFile; fileRef = 55878CE1203E730A005A4AF1 /* xpc_crash.c */; };
 		55D3890E2032C18D003B8F1D /* libthreadexec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 55D3890D2032C18D003B8F1D /* libthreadexec.a */; };
 		55D389162032C7FC003B8F1D /* launchd_portrep_crasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 55D389112032C7FC003B8F1D /* launchd_portrep_crasher.m */; };
@@ -75,6 +77,10 @@
 		554F554F2032B0790087BAC8 /* blanket_main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = blanket_main.c; sourceTree = "<group>"; };
 		554F55522032B2270087BAC8 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
 		554F55532032B2270087BAC8 /* log.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = log.c; sourceTree = "<group>"; };
+		555C62B6208ACBF00070A236 /* payload */ = {isa = PBXFileReference; lastKnownFileType = folder; path = payload; sourceTree = "<group>"; };
+		555C62B8208BA0830070A236 /* cdhash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cdhash.h; sourceTree = "<group>"; };
+		555C62B9208BA0830070A236 /* cdhash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cdhash.c; sourceTree = "<group>"; };
+		555C62BB208BBDB30070A236 /* cs_blobs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cs_blobs.h; sourceTree = "<group>"; };
 		55878CE0203E730A005A4AF1 /* xpc_crash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xpc_crash.h; sourceTree = "<group>"; };
 		55878CE1203E730A005A4AF1 /* xpc_crash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xpc_crash.c; sourceTree = "<group>"; };
 		55878CE3203E73D0005A4AF1 /* mach_vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_vm.h; sourceTree = "<group>"; };
@@ -137,6 +143,8 @@
 			children = (
 				552968EB20892D0500580287 /* amfid_codesign_bypass.c */,
 				552968EA20892D0500580287 /* amfid_codesign_bypass.h */,
+				555C62B9208BA0830070A236 /* cdhash.c */,
+				555C62B8208BA0830070A236 /* cdhash.h */,
 			);
 			path = amfid;
 			sourceTree = "<group>";
@@ -144,6 +152,7 @@
 		554B409D202D4D030069E646 = {
 			isa = PBXGroup;
 			children = (
+				555C62B6208ACBF00070A236 /* payload */,
 				552968E920892CCB00580287 /* amfid */,
 				55D389482038E3D9003B8F1D /* backboardd */,
 				554B40A8202D4D030069E646 /* blanket */,
@@ -239,6 +248,7 @@
 			children = (
 				55D3891A2032C8D5003B8F1D /* bootstrap.h */,
 				55D3891B2032C8D5003B8F1D /* config.h */,
+				555C62BB208BBDB30070A236 /* cs_blobs.h */,
 				552968E720881CCB00580287 /* libproc.h */,
 				55878CE3203E73D0005A4AF1 /* mach_vm.h */,
 				55D3891C2032C8D5003B8F1D /* NSExtension.h */,
@@ -403,6 +413,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				555C62B7208ACBF00070A236 /* payload in Resources */,
 				554B40B6202D4D030069E646 /* LaunchScreen.storyboard in Resources */,
 				554B40B3202D4D030069E646 /* Assets.xcassets in Resources */,
 				554B40B1202D4D030069E646 /* Main.storyboard in Resources */,
@@ -431,6 +442,7 @@
 				55878CE2203E730A005A4AF1 /* xpc_crash.c in Sources */,
 				55D389202032C90B003B8F1D /* reportcrash.c in Sources */,
 				554F55542032B2270087BAC8 /* log.c in Sources */,
+				555C62BA208BA0830070A236 /* cdhash.c in Sources */,
 				55D3894B2038E49A003B8F1D /* carenderserver.c in Sources */,
 				554B40B9202D4D030069E646 /* main.m in Sources */,
 				55D38953203918D6003B8F1D /* mach_message.c in Sources */,

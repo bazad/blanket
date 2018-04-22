@@ -47,6 +47,6 @@ extern void (*log_implementation)(char type, const char *format, va_list ap);
 #define ERROR(fmt, ...)		log_internal('E', fmt, ##__VA_ARGS__)
 
 // A function to call the logging implementation.
-void log_internal(char type, const char *format, ...);
+void log_internal(char type, const char *format, ...) __attribute__((__format__ (__printf__, 2, 3)));
 
 #endif

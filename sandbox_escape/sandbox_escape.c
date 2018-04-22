@@ -164,7 +164,7 @@ restore_launchd_service(threadexec_t threadexec, mach_port_t launchd_task_remote
 		ERROR("Failed to replace launchd service port for %s", service_name);
 		DEBUG_TRACE(1, "Real service is 0x%x, fake service is 0x%x, "
 				"after replacement we have 0x%x",
-				real_service, fake_service, new_service);
+				real_service, *fake_service, new_service);
 	}
 	return true;
 }
