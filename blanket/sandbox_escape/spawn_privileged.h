@@ -20,13 +20,12 @@
  * 					environment.
  * 	stdio_fds			An array of 3 file descriptors to use as stdin, stdout, and
  * 					stderr in the spawned process. May be NULL.
- * 	pid			out	On return, the PID of the spawned process. May be NULL.
  *
  * Returns:
- * 	Returns true if the process was successfully spawned.
+ * 	Returns the PID of the spawned process or -1.
  */
-bool spawn_privileged(threadexec_t priv_tx, const char *path,
+pid_t spawn_privileged(threadexec_t priv_tx, const char *path,
 		const char **argv, const char **envp,
-		const int *stdio_fds, pid_t *pid);
+		const int *stdio_fds);
 
 #endif

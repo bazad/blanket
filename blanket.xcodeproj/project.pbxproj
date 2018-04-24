@@ -22,7 +22,6 @@
 		555C631A208CF6770070A236 /* blanket_platform_payload in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 555C6311208CEF110070A236 /* blanket_platform_payload */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		55878CE2203E730A005A4AF1 /* xpc_crash.c in Sources */ = {isa = PBXBuildFile; fileRef = 55878CE1203E730A005A4AF1 /* xpc_crash.c */; };
 		558C0A77208D013A00EF6352 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 554F55532032B2270087BAC8 /* log.c */; };
-		558C0A79208D037400EF6352 /* log_to_file.c in Sources */ = {isa = PBXBuildFile; fileRef = 558C0A78208D037400EF6352 /* log_to_file.c */; };
 		558C0A7B208D257000EF6352 /* bootstrap_port.c in Sources */ = {isa = PBXBuildFile; fileRef = 558C0A7A208D257000EF6352 /* bootstrap_port.c */; };
 		55D3890E2032C18D003B8F1D /* libthreadexec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 55D3890D2032C18D003B8F1D /* libthreadexec.a */; };
 		55D389162032C7FC003B8F1D /* launchd_portrep_crasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 55D389112032C7FC003B8F1D /* launchd_portrep_crasher.m */; };
@@ -111,7 +110,6 @@
 		55878CE1203E730A005A4AF1 /* xpc_crash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xpc_crash.c; sourceTree = "<group>"; };
 		55878CE3203E73D0005A4AF1 /* mach_vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_vm.h; sourceTree = "<group>"; };
 		558C0A76208CFBB600EF6352 /* blanket_platform_payload.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = blanket_platform_payload.entitlements; sourceTree = "<group>"; };
-		558C0A78208D037400EF6352 /* log_to_file.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = log_to_file.c; sourceTree = "<group>"; };
 		558C0A7A208D257000EF6352 /* bootstrap_port.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bootstrap_port.c; sourceTree = "<group>"; };
 		55D3890D2032C18D003B8F1D /* libthreadexec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libthreadexec.a; path = ../threadexec/lib/libthreadexec.a; sourceTree = "<group>"; };
 		55D389102032C7FC003B8F1D /* launchd_portrep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = launchd_portrep.h; sourceTree = "<group>"; };
@@ -265,7 +263,6 @@
 			children = (
 				555C6314208CEF110070A236 /* blanket_platform_payload.c */,
 				558C0A7A208D257000EF6352 /* bootstrap_port.c */,
-				558C0A78208D037400EF6352 /* log_to_file.c */,
 				558C0A76208CFBB600EF6352 /* blanket_platform_payload.entitlements */,
 			);
 			path = blanket_platform_payload;
@@ -541,7 +538,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				558C0A79208D037400EF6352 /* log_to_file.c in Sources */,
 				558C0A77208D013A00EF6352 /* log.c in Sources */,
 				555C6315208CEF110070A236 /* blanket_platform_payload.c in Sources */,
 				558C0A7B208D257000EF6352 /* bootstrap_port.c in Sources */,
