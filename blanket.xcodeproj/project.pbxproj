@@ -11,6 +11,7 @@
 		55103868208FBE15008E8626 /* amfidupe.c in Sources */ = {isa = PBXBuildFile; fileRef = 55103867208FBE15008E8626 /* amfidupe.c */; };
 		5510386D208FBF73008E8626 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 554F55532032B2270087BAC8 /* log.c */; };
 		5510386E208FBF91008E8626 /* amfidupe in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 55103864208FBE15008E8626 /* amfidupe */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		55103872208FD290008E8626 /* process.c in Sources */ = {isa = PBXBuildFile; fileRef = 55103870208FD290008E8626 /* process.c */; };
 		552968EC20892D0500580287 /* amfid_codesign_bypass.c in Sources */ = {isa = PBXBuildFile; fileRef = 552968EB20892D0500580287 /* amfid_codesign_bypass.c */; };
 		554B40AB202D4D030069E646 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 554B40AA202D4D030069E646 /* AppDelegate.m */; };
 		554B40AE202D4D030069E646 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 554B40AD202D4D030069E646 /* ViewController.m */; };
@@ -91,6 +92,8 @@
 		55103864208FBE15008E8626 /* amfidupe */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = amfidupe; sourceTree = BUILT_PRODUCTS_DIR; };
 		55103867208FBE15008E8626 /* amfidupe.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = amfidupe.c; sourceTree = "<group>"; };
 		5510386F208FC10A008E8626 /* amfidupe.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = amfidupe.entitlements; sourceTree = "<group>"; };
+		55103870208FD290008E8626 /* process.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = process.c; sourceTree = "<group>"; };
+		55103871208FD290008E8626 /* process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = process.h; sourceTree = "<group>"; };
 		552968E720881CCB00580287 /* libproc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libproc.h; sourceTree = "<group>"; };
 		552968EA20892D0500580287 /* amfid_codesign_bypass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amfid_codesign_bypass.h; sourceTree = "<group>"; };
 		552968EB20892D0500580287 /* amfid_codesign_bypass.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amfid_codesign_bypass.c; sourceTree = "<group>"; };
@@ -190,6 +193,8 @@
 			isa = PBXGroup;
 			children = (
 				55103867208FBE15008E8626 /* amfidupe.c */,
+				55103871208FD290008E8626 /* process.h */,
+				55103870208FD290008E8626 /* process.c */,
 				5510386F208FC10A008E8626 /* amfidupe.entitlements */,
 			);
 			path = amfidupe;
@@ -559,6 +564,7 @@
 			files = (
 				5510386D208FBF73008E8626 /* log.c in Sources */,
 				55103868208FBE15008E8626 /* amfidupe.c in Sources */,
+				55103872208FD290008E8626 /* process.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
