@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5510385F208F07F5008E8626 /* spawn_privileged.c in Sources */ = {isa = PBXBuildFile; fileRef = 5510385E208F07F5008E8626 /* spawn_privileged.c */; };
 		552968EC20892D0500580287 /* amfid_codesign_bypass.c in Sources */ = {isa = PBXBuildFile; fileRef = 552968EB20892D0500580287 /* amfid_codesign_bypass.c */; };
 		554B40AB202D4D030069E646 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 554B40AA202D4D030069E646 /* AppDelegate.m */; };
 		554B40AE202D4D030069E646 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 554B40AD202D4D030069E646 /* ViewController.m */; };
@@ -82,6 +83,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5510385D208F07F5008E8626 /* spawn_privileged.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spawn_privileged.h; sourceTree = "<group>"; };
+		5510385E208F07F5008E8626 /* spawn_privileged.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spawn_privileged.c; sourceTree = "<group>"; };
 		552968E720881CCB00580287 /* libproc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libproc.h; sourceTree = "<group>"; };
 		552968EA20892D0500580287 /* amfid_codesign_bypass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amfid_codesign_bypass.h; sourceTree = "<group>"; };
 		552968EB20892D0500580287 /* amfid_codesign_bypass.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amfid_codesign_bypass.c; sourceTree = "<group>"; };
@@ -330,6 +333,8 @@
 				55D3893E2038D04D003B8F1D /* mach_service_mitm.c */,
 				55D389142032C7FC003B8F1D /* sandbox_escape.h */,
 				55D389132032C7FC003B8F1D /* sandbox_escape.c */,
+				5510385D208F07F5008E8626 /* spawn_privileged.h */,
+				5510385E208F07F5008E8626 /* spawn_privileged.c */,
 				55D38955203BD72E003B8F1D /* threadexec_routines.h */,
 				55D38954203BD72E003B8F1D /* threadexec_routines.c */,
 			);
@@ -510,6 +515,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				55D389472038E3A2003B8F1D /* druid.c in Sources */,
+				5510385F208F07F5008E8626 /* spawn_privileged.c in Sources */,
 				554F55502032B0790087BAC8 /* blanket_main.c in Sources */,
 				55D389172032C7FC003B8F1D /* sandbox_escape.c in Sources */,
 				554B40AE202D4D030069E646 /* ViewController.m in Sources */,
