@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		5510385F208F07F5008E8626 /* spawn_privileged.c in Sources */ = {isa = PBXBuildFile; fileRef = 5510385E208F07F5008E8626 /* spawn_privileged.c */; };
+		55103868208FBE15008E8626 /* amfidupe.c in Sources */ = {isa = PBXBuildFile; fileRef = 55103867208FBE15008E8626 /* amfidupe.c */; };
+		5510386D208FBF73008E8626 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = 554F55532032B2270087BAC8 /* log.c */; };
+		5510386E208FBF91008E8626 /* amfidupe in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 55103864208FBE15008E8626 /* amfidupe */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		552968EC20892D0500580287 /* amfid_codesign_bypass.c in Sources */ = {isa = PBXBuildFile; fileRef = 552968EB20892D0500580287 /* amfid_codesign_bypass.c */; };
 		554B40AB202D4D030069E646 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 554B40AA202D4D030069E646 /* AppDelegate.m */; };
 		554B40AE202D4D030069E646 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 554B40AD202D4D030069E646 /* ViewController.m */; };
@@ -63,6 +66,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				5510386E208FBF91008E8626 /* amfidupe in Embed Libraries */,
 				555C631A208CF6770070A236 /* blanket_platform_payload in Embed Libraries */,
 			);
 			name = "Embed Libraries";
@@ -84,6 +88,9 @@
 /* Begin PBXFileReference section */
 		5510385D208F07F5008E8626 /* spawn_privileged.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spawn_privileged.h; sourceTree = "<group>"; };
 		5510385E208F07F5008E8626 /* spawn_privileged.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spawn_privileged.c; sourceTree = "<group>"; };
+		55103864208FBE15008E8626 /* amfidupe */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = amfidupe; sourceTree = BUILT_PRODUCTS_DIR; };
+		55103867208FBE15008E8626 /* amfidupe.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = amfidupe.c; sourceTree = "<group>"; };
+		5510386F208FC10A008E8626 /* amfidupe.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = amfidupe.entitlements; sourceTree = "<group>"; };
 		552968E720881CCB00580287 /* libproc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libproc.h; sourceTree = "<group>"; };
 		552968EA20892D0500580287 /* amfid_codesign_bypass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amfid_codesign_bypass.h; sourceTree = "<group>"; };
 		552968EB20892D0500580287 /* amfid_codesign_bypass.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = amfid_codesign_bypass.c; sourceTree = "<group>"; };
@@ -147,6 +154,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		55103861208FBE15008E8626 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		554B40A3202D4D030069E646 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -172,6 +186,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		55103865208FBE15008E8626 /* amfidupe */ = {
+			isa = PBXGroup;
+			children = (
+				55103867208FBE15008E8626 /* amfidupe.c */,
+				5510386F208FC10A008E8626 /* amfidupe.entitlements */,
+			);
+			path = amfidupe;
+			sourceTree = "<group>";
+		};
 		552968E920892CCB00580287 /* amfid */ = {
 			isa = PBXGroup;
 			children = (
@@ -186,6 +209,7 @@
 		554B409D202D4D030069E646 = {
 			isa = PBXGroup;
 			children = (
+				55103865208FBE15008E8626 /* amfidupe */,
 				554B40A8202D4D030069E646 /* blanket */,
 				555C6312208CEF110070A236 /* blanket_platform_payload */,
 				55D389192032C8A1003B8F1D /* headers */,
@@ -201,6 +225,7 @@
 				554B40A6202D4D030069E646 /* blanket.app */,
 				55D389262032D0F5003B8F1D /* launchd_portrep_crasher.appex */,
 				555C6311208CEF110070A236 /* blanket_platform_payload */,
+				55103864208FBE15008E8626 /* amfidupe */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -379,6 +404,22 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		55103863208FBE15008E8626 /* amfidupe */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5510386A208FBE15008E8626 /* Build configuration list for PBXNativeTarget "amfidupe" */;
+			buildPhases = (
+				55103860208FBE15008E8626 /* Sources */,
+				55103861208FBE15008E8626 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = amfidupe;
+			productName = amfidupe;
+			productReference = 55103864208FBE15008E8626 /* amfidupe */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		554B40A5202D4D030069E646 /* blanket */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 554B40BC202D4D030069E646 /* Build configuration list for PBXNativeTarget "blanket" */;
@@ -442,6 +483,10 @@
 				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = "Brandon Azad";
 				TargetAttributes = {
+					55103863208FBE15008E8626 = {
+						CreatedOnToolsVersion = 9.3;
+						ProvisioningStyle = Automatic;
+					};
 					554B40A5202D4D030069E646 = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
@@ -482,6 +527,7 @@
 				554B40A5202D4D030069E646 /* blanket */,
 				55D389252032D0F5003B8F1D /* launchd_portrep_crasher */,
 				555C6310208CEF110070A236 /* blanket_platform_payload */,
+				55103863208FBE15008E8626 /* amfidupe */,
 			);
 		};
 /* End PBXProject section */
@@ -507,6 +553,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		55103860208FBE15008E8626 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5510386D208FBF73008E8626 /* log.c in Sources */,
+				55103868208FBE15008E8626 /* amfidupe.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		554B40A2202D4D030069E646 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -587,6 +642,46 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		5510386B208FBE15008E8626 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = amfidupe/amfidupe.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = DEEG7TTSF2;
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				MACH_O_TYPE = mh_execute;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)";
+			};
+			name = Debug;
+		};
+		5510386C208FBE15008E8626 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = amfidupe/amfidupe.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = DEEG7TTSF2;
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				MACH_O_TYPE = mh_execute;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)";
+			};
+			name = Release;
+		};
 		554B40BA202D4D030069E646 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -800,6 +895,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		5510386A208FBE15008E8626 /* Build configuration list for PBXNativeTarget "amfidupe" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5510386B208FBE15008E8626 /* Debug */,
+				5510386C208FBE15008E8626 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		554B40A1202D4D030069E646 /* Build configuration list for PBXProject "blanket" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

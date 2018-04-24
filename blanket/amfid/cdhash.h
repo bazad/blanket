@@ -20,5 +20,4 @@
  */
 bool compute_cdhash(const void *file, size_t size, void *cdhash);
 
-
 #endif

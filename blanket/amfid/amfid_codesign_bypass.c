@@ -340,7 +340,10 @@ amfid_exception_handler_thread(void *arg) {
 			kern_return_t *        result) {
 		kern_return_t kr = amfid_catch_exception(thread, task, exception);
 		*result = kr;
-		if (kr != KERN_SUCCESS) {
+		if (kr == KERN_SUCCESS) {
+			mach_port_deallocate(mach_task_self(), thread);
+			mach_port_deallocate(mach_task_self(), task);
+		} else {
 			WARNING("Cannot handle exception: amfid will crash");
 		}
 		return false;
@@ -502,11 +505,13 @@ amfid_codesign_bypass_install(threadexec_t priv_tx) {
 fail_1:
 	amfid_codesign_bypass_remove();
 fail_0:
+	ERROR("Could not install amfid codesigning bypass");
 	return false;
 }
 
 void
 amfid_codesign_bypass_remove() {
+	DEBUG_TRACE(1, "Removing amfid codesigning bypass");
 	unpatch_amfid_validation();
 	if (amfid_exception_port != MACH_PORT_NULL) {
 		// Ideally we should unregister amfid's exception handler on failure, but I think

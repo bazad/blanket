@@ -23,6 +23,9 @@
  *
  * Returns:
  * 	Returns the PID of the spawned process or -1.
+ *
+ * Notes:
+ * 	This function does not install a codesigning bypass in amfid!
  */
 pid_t spawn_privileged(threadexec_t priv_tx, const char *path,
 		const char **argv, const char **envp,

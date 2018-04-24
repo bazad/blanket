@@ -1,6 +1,5 @@
 #include "blanket/sandbox_escape/spawn_privileged.h"
 
-#include "blanket/amfid/amfid_codesign_bypass.h"
 #include "blanket/log/log.h"
 #include "blanket/sandbox_escape/threadexec_routines.h"
 
@@ -204,12 +203,6 @@ spawn_privileged(threadexec_t priv_tx, const char *path,
 	if (!ok) {
 		goto fail_2;
 	}
-	// Install the codesigning bypass to allow us to run unsigned code.
-	ok = amfid_codesign_bypass_install(priv_tx);
-	if (!ok) {
-		ERROR("Could not install codesigning bypass");
-		goto fail_2;
-	}
 	// Call posix_spawn() in launchd to spawn the payload.
 	DEBUG_TRACE(1, "Spawning %s", path);
 	int err;
@@ -223,12 +216,10 @@ spawn_privileged(threadexec_t priv_tx, const char *path,
 			TX_CARG_LITERAL(void *, envp_r));
 	if (!ok || err != 0) {
 		ERROR("Could not spawn %s: error %d", path, err);
-		goto fail_3;
+		goto fail_2;
 	}
 	// Success!
 	DEBUG_TRACE(1, "Spawned %s as PID %d", path, pid);
-fail_3:
-	amfid_codesign_bypass_remove();
 fail_2:
 	cleanup_stdio_fds(launchd_tx, stdio_fds_r, file_actions_r);
 fail_1:
