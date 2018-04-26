@@ -1,0 +1,60 @@
+/*
+ * This is my guess as to what the original MIG for the amfid service looks like. It should be
+ * compatible, if not identical.
+ */
+
+subsystem amfid 1000;
+
+import "amfid_types.h";
+
+// Define some standard types from mach/std_types.defs.
+type uint8_t = MACH_MSG_TYPE_INTEGER_8;
+type int32_t = MACH_MSG_TYPE_INTEGER_32;
+type uint64_t = MACH_MSG_TYPE_INTEGER_64;
+type mach_port_t = MACH_MSG_TYPE_COPY_SEND;
+
+// Define some standard types from mach/mach_types.defs.
+type audit_token_t = struct[8] of int32_t;
+
+// Define the types needed by amfid.
+type amfid_path_t	= c_string[*:1024];
+type amfid_a13_t	= c_string[*:4096];
+type amfid_cdhash_t	= array[20] of uint8_t;
+
+/*
+ * verify_code_directory
+ */
+routine		verify_code_directory(
+			amfid_port		: mach_port_t;
+			path			: amfid_path_t;
+			file_offset		: uint64_t;
+			a4			: int32_t;
+			a5			: int32_t;
+			a6			: int32_t;
+		out	entitlements_valid	: int32_t;
+		out	valid			: int32_t;
+		out	unrestrict		: int32_t;
+		out	signer_type		: int32_t;
+		out	is_apple		: int32_t;
+		out	is_developer_code	: int32_t;
+		out	a13			: amfid_a13_t;
+		out	cdhash			: amfid_cdhash_t;
+ServerAuditToken	audit			: audit_token_t);
+
+/*
+ * permit_unrestricted_debugging
+ */
+routine		permit_unrestricted_debugging(
+			amfid_port		: mach_port_t;
+		out	unrestricted_debugging	: int32_t;
+ServerAuditToken	audit			: audit_token_t);
+
+/* unused */
+skip;
+
+/* unused */
+skip;
+
+/* unused */
+skip;
+

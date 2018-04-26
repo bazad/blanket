@@ -10,7 +10,7 @@
  *  [2]: https://opensource.apple.com/source/xnu/xnu-4570.41.2/bsd/kern/ubc_subr.c.auto.html
  *
  */
-#include "blanket/amfid/cdhash.h"
+#include "amfidupe/cdhash.h"
 
 #include "blanket/log/log.h"
 

@@ -10,7 +10,7 @@
  */
 #include "blanket/amfid/amfid_codesign_bypass.h"
 
-#include "blanket/amfid/cdhash.h"
+#include "amfidupe/cdhash.h"
 #include "blanket/log/log.h"
 #include "blanket/sandbox_escape/exception_server.h"
 #include "blanket/sandbox_escape/threadexec_routines.h"
