@@ -837,7 +837,7 @@
 				INFOPLIST_FILE = blanket/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/threadexec/lib";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.bazad.blanket;
+				PRODUCT_BUNDLE_IDENTIFIER = com.brandonazad.blanket;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT) $(SRCROOT)/threadexec/include";
@@ -854,7 +854,7 @@
 				INFOPLIST_FILE = blanket/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/threadexec/lib";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.bazad.blanket;
+				PRODUCT_BUNDLE_IDENTIFIER = com.brandonazad.blanket;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT) $(SRCROOT)/threadexec/include";
@@ -907,7 +907,7 @@
 				DEVELOPMENT_TEAM = DEEG7TTSF2;
 				INFOPLIST_FILE = launchd_portrep_crasher/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.github.bazad.blanket.launchd-portrep-crasher";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.brandonazad.blanket.launchd-portrep-crasher";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -922,7 +922,7 @@
 				DEVELOPMENT_TEAM = DEEG7TTSF2;
 				INFOPLIST_FILE = launchd_portrep_crasher/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.github.bazad.blanket.launchd-portrep-crasher";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.brandonazad.blanket.launchd-portrep-crasher";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
