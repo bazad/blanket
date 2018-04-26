@@ -31,7 +31,7 @@
 		559309F520900DFB000B7265 /* libobjc.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 559309F420900DFB000B7265 /* libobjc.tbd */; };
 		559309F620902054000B7265 /* cdhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 555C62B9208BA0830070A236 /* cdhash.c */; };
 		559309F7209020FC000B7265 /* cdhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 555C62B9208BA0830070A236 /* cdhash.c */; };
-		559309F9209110E4000B7265 /* iosbinpack64 in Resources */ = {isa = PBXBuildFile; fileRef = 559309F8209110E4000B7265 /* iosbinpack64 */; };
+		559309F9209110E4000B7265 /* binpack in Resources */ = {isa = PBXBuildFile; fileRef = 559309F8209110E4000B7265 /* binpack */; };
 		55D3890E2032C18D003B8F1D /* libthreadexec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 55D3890D2032C18D003B8F1D /* libthreadexec.a */; };
 		55D389162032C7FC003B8F1D /* launchd_portrep_crasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 55D389112032C7FC003B8F1D /* launchd_portrep_crasher.m */; };
 		55D389172032C7FC003B8F1D /* sandbox_escape.c in Sources */ = {isa = PBXBuildFile; fileRef = 55D389132032C7FC003B8F1D /* sandbox_escape.c */; };
@@ -136,7 +136,7 @@
 		558C0A76208CFBB600EF6352 /* blanket_payload.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = blanket_payload.entitlements; sourceTree = "<group>"; };
 		558C0A7A208D257000EF6352 /* bootstrap_port.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bootstrap_port.c; sourceTree = "<group>"; };
 		559309F420900DFB000B7265 /* libobjc.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libobjc.tbd; path = usr/lib/libobjc.tbd; sourceTree = SDKROOT; };
-		559309F8209110E4000B7265 /* iosbinpack64 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = iosbinpack64; sourceTree = "<group>"; };
+		559309F8209110E4000B7265 /* binpack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = binpack; sourceTree = "<group>"; };
 		55D3890D2032C18D003B8F1D /* libthreadexec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libthreadexec.a; path = ../threadexec/lib/libthreadexec.a; sourceTree = "<group>"; };
 		55D389102032C7FC003B8F1D /* launchd_portrep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = launchd_portrep.h; sourceTree = "<group>"; };
 		55D389112032C7FC003B8F1D /* launchd_portrep_crasher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = launchd_portrep_crasher.m; sourceTree = "<group>"; };
@@ -235,10 +235,10 @@
 			isa = PBXGroup;
 			children = (
 				55103865208FBE15008E8626 /* amfidupe */,
+				559309F8209110E4000B7265 /* binpack */,
 				554B40A8202D4D030069E646 /* blanket */,
 				555C6312208CEF110070A236 /* blanket_payload */,
 				55D389192032C8A1003B8F1D /* headers */,
-				559309F8209110E4000B7265 /* iosbinpack64 */,
 				55D389272032D0F5003B8F1D /* launchd_portrep_crasher */,
 				55D3890C2032C18D003B8F1D /* Frameworks */,
 				554B40A7202D4D030069E646 /* Products */,
@@ -565,7 +565,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				559309F9209110E4000B7265 /* iosbinpack64 in Resources */,
+				559309F9209110E4000B7265 /* binpack in Resources */,
 				554B40B6202D4D030069E646 /* LaunchScreen.storyboard in Resources */,
 				554B40B3202D4D030069E646 /* Assets.xcassets in Resources */,
 				554B40B1202D4D030069E646 /* Main.storyboard in Resources */,

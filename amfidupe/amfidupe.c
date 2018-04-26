@@ -210,6 +210,10 @@ permit_unrestricted_debugging(
 // Run our fake amfid server. We need to do something slightly tricky: receive the messages on
 // fake_amfid_port in this task but send the reply to the messages from within amfid. That way, we
 // can bypass the kernel's check that the message came from amfid in the function tokenIsTrusted().
+//
+// Note: The only place where amfidupe relies on threadexec nontrivially is in making amfid call
+// mach_msg(). However, since mach_msg() takes just 7 arguments, it should be pretty
+// straightforward to use thread_set_state() directly.
 static void
 run_amfid_server() {
 	// Build a local buffer for the request.

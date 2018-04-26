@@ -119,6 +119,7 @@ restore_launchd_send_right(threadexec_t threadexec, task_t launchd_task_remote,
 	ok = threadexec_task_mach_port_insert_right(threadexec, launchd_task_remote,
 			service_port_name, original_service_send_remote, MACH_MSG_TYPE_MOVE_SEND);
 	if (!ok) {
+		ERROR("Could not insert the original service port back into launchd");
 		goto fail_1;
 	}
 	// Call mach_port_mod_refs() to set the desired uref count. If we fail, don't deallocate
@@ -126,6 +127,7 @@ restore_launchd_send_right(threadexec_t threadexec, task_t launchd_task_remote,
 	ok = threadexec_task_mach_port_mod_refs(threadexec, launchd_task_remote, service_port_name,
 			MACH_PORT_RIGHT_SEND, srcount - 1);
 	if (!ok) {
+		ERROR("Could not set the service port's send right count in launchd");
 		goto fail_0;
 	}
 	// Perfect, we're all set!

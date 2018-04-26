@@ -4,12 +4,11 @@
 #include "blanket/log/log.h"
 #include "blanket/sandbox_escape/sandbox_escape.h"
 #include "blanket/sandbox_escape/spawn_privileged.h"
+#include "headers/config.h"
 
 #include <notify.h>
 #include <stdlib.h>
 #include <CoreFoundation/CoreFoundation.h>
-
-#define PAYLOAD_NAME	"blanket_payload"
 
 // Copy the path to the current bundle into a buffer.
 static void
@@ -33,7 +32,8 @@ spawn_payload(threadexec_t priv_tx) {
 	// Build the path to the iosbinpack64 directory. This will be the payload's working
 	// directory.
 	char binpack_dir[1024];
-	snprintf(binpack_dir, sizeof(binpack_dir), "%s/%s", bundle_path, "iosbinpack64");
+	snprintf(binpack_dir, sizeof(binpack_dir), "%s/%s", bundle_path,
+			PAYLOAD_BINPACK_DIRECTORY);
 	// Install the amfid codesigning bypass.
 	bool ok = amfid_codesign_bypass_install(priv_tx);
 	if (!ok) {
@@ -47,7 +47,8 @@ spawn_payload(threadexec_t priv_tx) {
 		goto fail_1;
 	}
 	// Success! Give the payload a few seconds before we remove the codesigning bypass to
-	// launch amfidupe.
+	// launch amfidupe. This is a complete hack, but it's much simpler than reimplementing the
+	// same functionality in the payload.
 	sleep(4);
 fail_1:
 	amfid_codesign_bypass_remove();

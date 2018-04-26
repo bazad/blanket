@@ -44,7 +44,7 @@ bool
 launchd_release_send_right_twice(mach_port_t send_right) {
 	// Get the name of the extension.
 	NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-	NSString *extensionName = [bundleIdentifier stringByAppendingString:@".launchd-portrep-crasher"];
+	NSString *extensionName = [NSString stringWithFormat:@"%@.%s", bundleIdentifier, LAUNCHD_PORTREP_CRASHER_NAME];
 	// Create an NSExtension object through which we can interact with our extension.
 	NSError *error = nil;
 	DEBUG_TRACE(1, "Connecting to extension %s", extensionName.UTF8String);
