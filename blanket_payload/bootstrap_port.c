@@ -41,7 +41,7 @@ lookup_bootstrap_port() {
 // Set up our new bootstrap port.
 static void
 setup_bootstrap_port() {
-	task_set_special_port(mach_task_self(), TASK_BOOTSTRAP_PORT, bootstrap_port);
+	task_set_bootstrap_port(mach_task_self(), bootstrap_port);
 }
 
 // Initialize the XPC bootstrap pipe.

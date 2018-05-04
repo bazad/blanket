@@ -1,6 +1,10 @@
 /*
- * This is my guess as to what the original MIG for the amfid service looks like. It should be
- * compatible, if not identical.
+ * amfid.mig
+ * Brandon Azad
+ *
+ * This is my guess as to what the original MIG for the amfid service looks like. It should
+ * generate a compatible MIG server.
+ *
  */
 
 subsystem amfid 1000;
@@ -32,7 +36,7 @@ routine		verify_code_directory(
 			a5			: int32_t;
 			a6			: int32_t;
 		out	entitlements_valid	: int32_t;
-		out	valid			: int32_t;
+		out	signature_valid		: int32_t;
 		out	unrestrict		: int32_t;
 		out	signer_type		: int32_t;
 		out	is_apple		: int32_t;

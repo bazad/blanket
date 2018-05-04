@@ -9,6 +9,19 @@
  *  Everyone seems to want to bypass amfid by patching its MISValidateSignatureAndCopyInfo()
  *  function. I think there's a better, more flexible way.
  *
+ *  Amfidupe bypasses amfid by registering a new HOST_AMFID_PORT special port. This strategy hasn't
+ *  worked in the past because AMFI checks that the reply messages sent to the amfid port came from
+ *  the real amfid daemon. However, there's nothing stopping us from receiving the messages in our
+ *  own process and then making the original amfid process send the reply: the kernel doesn't know
+ *  that amfid isn't the original receiver of the message. This allows us to bypass amfid without
+ *  performing any data patches at all.
+ *
+ *  An additional benefit of this approach is that we get direct access to the parameters to
+ *  verify_code_directory(), which allows us to set flags that would otherwise be unavailable when
+ *  using the traditional patch. For example, the is_apple parameter allows us to control whether
+ *  the binary gets marked with the CS_PLATFORM_BINARY flag, which bestows platform binary
+ *  privileges on it.
+ *
  */
 
 #include <assert.h>
@@ -167,7 +180,7 @@ verify_code_directory(
 		int32_t a5,
 		int32_t a6,
 		int32_t *entitlements_valid,
-		int32_t *valid,
+		int32_t *signature_valid,
 		int32_t *unrestrict,
 		int32_t *signer_type,
 		int32_t *is_apple,
@@ -189,7 +202,7 @@ verify_code_directory(
 	}
 	// Grant all the permissions.
 	*entitlements_valid = 1;
-	*valid = 1;
+	*signature_valid = 1;
 	*unrestrict = 1;
 	*signer_type = 0;
 	*is_apple = 1;

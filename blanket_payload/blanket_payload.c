@@ -5,8 +5,11 @@
  * blanket_payload
  * ================================================================================================
  *
- *  This is the payload that gets run by the blanket app with system privileges. If you don't want
- *  to run a shell, replace the payload implementation.
+ *  This is the payload that gets run by the blanket app with system privileges. The first part of
+ *  the payload parses arguments and spawns amfidupe, an amfid bypass that allows running
+ *  pseudo-signed binaries with arbitrary entitlements with platform binary privileges. The second
+ *  part of the payload sets up a bind shell. Finally, once the process receives a terminating
+ *  signal, it stops running the shell, kills amfidupe, and exits.
  *
  */
 
