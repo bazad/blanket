@@ -14,7 +14,7 @@ stages of the sandbox escape step-by-step.
 
 
 Impersonating system services
-===================================================================================================
+---------------------------------------------------------------------------------------------------
 
 While researching crash reporting on iOS, I discovered a Mach port replacement vulnerability in
 launchd. By crashing in a particular way, a process can make the kernel send a Mach message to
@@ -27,8 +27,7 @@ difficult due to checks in launchd that ensure that the Mach exception message c
 kernel.
 
 
-The vulnerability: launchd Mach port over-deallocation while handling EXC_CRASH exception messages
----------------------------------------------------------------------------------------------------
+### The vulnerability: launchd Mach port over-deallocation while handling EXC_CRASH exception messages
 
 Launchd multiplexes multiple different Mach message handlers over its main port, including a MIG
 handler for exception messages. If a process sends a `mach_exception_raise` or
@@ -148,8 +147,7 @@ impersonate that service to the client. After that there are many different rout
 privileges.
 
 
-Triggering the vulnerability
----------------------------------------------------------------------------------------------------
+### Triggering the vulnerability
 
 In order to actually trigger the vulnerability, we'll need to bypass the check that the message was
 sent by the kernel. This is because if we send the exception message to launchd directly it will
@@ -195,8 +193,7 @@ vulnerability and freeing the Mach service port:
 5. Launchd will process the exception message and free the service port.
 
 
-Running code after the crash
----------------------------------------------------------------------------------------------------
+### Running code after the crash
 
 There's a problem with the above method of freeing the service port: calling `abort` will kill our
 process. Thus, if we want to be able to run any code at all after triggering the vulnerability, we
@@ -227,8 +224,7 @@ launchd to which the app extension connects.
 [Multi-Process iOS App Using NSExtension]: https://ianmcdowell.net/blog/nsextension/
 
 
-Keeping the freed port free in launchd
----------------------------------------------------------------------------------------------------
+### Keeping the freed port free in launchd
 
 One challenge you would notice if you ran the exploit this way is that occasionally you would not
 be able to reacquire the freed port. The reason for this is that the kernel tracks a process's free
@@ -254,8 +250,7 @@ launchd, but using application groups is certainly the easiest, and suffices for
 proof-of-concept.
 
 
-Impersonating the freed service
----------------------------------------------------------------------------------------------------
+### Impersonating the freed service
 
 Once we have spawned the crasher app extension and freed a Mach send right in launchd, we need to
 reallocate that Mach port name with a send right to which we hold the receive right. That way, any
@@ -283,7 +278,7 @@ least, to those processes that look up the service after our attack).
 
 
 Stage 1: Obtaining the host-priv port
-===================================================================================================
+---------------------------------------------------------------------------------------------------
 
 Once we have the capability to impersonate arbitrary system services, the next step is to obtain
 the host-priv port. This step is straightforward, and is not affected by the changes in iOS 11.3.
@@ -291,8 +286,7 @@ The high-level idea of this attack is to impersonate SafetyNet, crash ReportCras
 retrieve the host-priv port from the dying ReportCrash task.
 
 
-About ReportCrash and SafetyNet
----------------------------------------------------------------------------------------------------
+### About ReportCrash and SafetyNet
 
 ReportCrash is responsible for generating crash reports on iOS. This one binary actually vends 4
 different services (each in a different process, although some are on-demand):
@@ -316,8 +310,7 @@ ReportCrash and SafetyNet only handle `mach_exception_raise_state_identity` mess
 both services are still present and reachable from within the iOS container sandbox.
 
 
-Manipulating ReportCrash
----------------------------------------------------------------------------------------------------
+### Manipulating ReportCrash
 
 In order to carry out the following attack, we need to be able to manipulate ReportCrash (or
 SafetyNet) to behave in the way we want. Specifically, we need the following capabilities: start
@@ -350,8 +343,7 @@ can simply not reply to the Mach message, and ReportCrash will wait indefinitely
 `task_policy_get` to return.
 
 
-Extracting host-priv from ReportCrash
----------------------------------------------------------------------------------------------------
+### Extracting host-priv from ReportCrash
 
 The attack plan is relatively straightforward:
 
@@ -378,7 +370,7 @@ by changes in iOS 11.3.
 
 
 Stage 2: Escaping the sandbox
-===================================================================================================
+---------------------------------------------------------------------------------------------------
 
 Even though we have the host-priv port, our goal is to fully escape the sandbox and run code as
 root with the `task_for_pid-allow` entitlement. The first step in achieving that is to simply escape
@@ -403,8 +395,7 @@ capability to replace system services, which means they are probably a low-prior
 both internally and externally to Apple.
 
 
-Crashing druid
----------------------------------------------------------------------------------------------------
+### Crashing druid
 
 Just like with ReportCrash, we need to be able to force druid to restart in case it is already
 running so that it looks up our fake CARenderServer port in launchd. I decided to use a bug in
@@ -457,8 +448,7 @@ In order to use this bug to crash druid, we simply need to send the druid servic
 message such that the dictionary's key is unterminated and extends to the last byte of the message.
 
 
-Obtaining druid's task port
----------------------------------------------------------------------------------------------------
+### Obtaining druid's task port
 
 Obtaining druid's task port on iOS 11.2.6 using our service impersonation primitive is easy:
 
@@ -469,8 +459,7 @@ Obtaining druid's task port on iOS 11.2.6 using our service impersonation primit
 4. Druid will send us its task port on the fake CARenderServer port.
 
 
-Getting around the platform binary task port restrictions
----------------------------------------------------------------------------------------------------
+### Getting around the platform binary task port restrictions
 
 Once we have druid's task port, we still need to figure out how to execute code inside the druid
 process.
@@ -559,7 +548,7 @@ I will forego a detailed explanation of its inner workings.
 
 
 Stage 3: Installing a new host-level exception handler
-===================================================================================================
+---------------------------------------------------------------------------------------------------
 
 Once we have the host-priv port and unsandboxed code execution inside of druid, the next stage of
 the full sandbox escape is to install a new host-level exception handler. This process is
@@ -579,7 +568,7 @@ we can use those task ports.
 
 
 Stage 4: Getting ReportCrash's task port
-===================================================================================================
+---------------------------------------------------------------------------------------------------
 
 The next stage is to trigger an `EXC_BAD_ACCESS` exception in ReportCrash so that its task port
 gets sent in an exception message to our new exception handler port:
@@ -599,7 +588,7 @@ At this point, we have code execution inside an unsandboxed, root, `task_for_pid
 
 
 Stage 5: Restoring the original host-level exception handler
-===================================================================================================
+---------------------------------------------------------------------------------------------------
 
 The next two stages aren't strictly necessary but should be performed anyway.
 
@@ -612,7 +601,7 @@ for `EXC_BAD_ACCESS` using druid:
 
 
 Stage 6: Fixing up launchd
-===================================================================================================
+---------------------------------------------------------------------------------------------------
 
 The last step is to restore the damage we did to launchd when we freed service ports in its IPC
 namespace in order to impersonate them:
@@ -628,8 +617,79 @@ namespace in order to impersonate them:
 After this step is done, the system should be functional again.
 
 
+Post-exploitation
+---------------------------------------------------------------------------------------------------
+
+Blanket also packages a post-exploitation payload that bypasses amfid and spawns a bind shell. This
+section will describe how that is achieved.
+
+
+### Spawning a payload process
+
+Even after gaining code execution in ReportCrash, using that capability is not easy: we are limited
+to individual function calls in the privileged process, which makes it painful to make ReportCrash
+perform complex tasks. Ideally, we'd like a way to run code natively with ReportCrash's privileges,
+either by injecting code into ReportCrash or by spawning a new process.
+
+Blanket chooses the process spawning route. We use `task_for_pid` and our platform binary status in
+ReportCrash to get launchd's task port and create a new thread that we can control. We then use
+that thread to call `posix_spawn` to launch our payload binary. The payload binary can be signed
+with restricted entitlements, including `task_for_pid-allow`, to grant additional capabilities.
+
+
+### Bypassing amfid
+
+In order for iOS to accept our newly spawned binary, we need to bypass codesigning. Various
+strategies have been discussed over the years, but the most common current strategy is to register
+an exception handler for amfid and then perform a data patch so that amfid crashes when trying to
+call `MISValidateSignatureAndCopyInfo`. This allows us to fake the implementation of that function
+to pretend that the code signature is valid.
+
+However, there's another approach which I believe is more robust and flexible: rather than patching
+amfid at all, we can simply register a new amfid port in the kernel.
+
+The kernel keeps track of which port to send messages to amfid using the a host special port called
+HOST_AMFID_PORT. If we have unsandboxed root code execution, we can set this port to a new value.
+Apple has protected against this attack by checking whether the reply to a validation request
+really came from amfid: the cdhash of the sender is compared to amfid's cdhash. However, this
+doesn't actually prevent the message from being sent to a process other than amfid; it only
+prevents the reply from coming from a non-amfid process. If we set up a triangle where the kernel
+sends messages to us, we generate the reply and pass it to amfid, and then amfid sends the reply to
+the kernel, then we'll be able to bypass the sender check.
+
+There are numerous advantages to this approach, of which the biggest is probably access to
+additional flags in the `verify_code_directory` service routine. Even though amfid does not use
+them all, there are many other output flags that amfid could set to control the behavior of
+codesigning. Here's a partial prototype of `verify_code_directory`:
+
+```C
+kern_return_t
+verify_code_directory(
+		mach_port_t    amfid_port,
+		amfid_path_t   path,
+		uint64_t       file_offset,
+		int32_t        a4,
+		int32_t        a5,
+		int32_t        a6,
+		int32_t *      entitlements_valid,
+		int32_t *      signature_valid,
+		int32_t *      unrestrict,
+		int32_t *      signer_type,
+		int32_t *      is_apple,
+		int32_t *      is_developer_code,
+		amfid_a13_t    a13,
+		amfid_cdhash_t cdhash,
+		audit_token_t  audit);
+```
+
+Of particular interest for jailbreak developers is the `is_apple` parameter. This parameter does
+not appear to be used by amfid, but if set, it will cause the kernel to set the
+`CS_PLATFORM_BINARY` codesigning flag, which grants the application platform binary privileges. In
+particular, this means that the application can now use task ports to modify platform binaries.
+
+
 Loopholes used in this attack
-===================================================================================================
+---------------------------------------------------------------------------------------------------
 
 This attack takes advantage of several loopholes that aren't security vulnerabilities themselves
 but do minimize the effectiveness of various exploit mitigations. Not all of these need to be
@@ -656,7 +716,7 @@ In app extensions:
 
 
 Recommended fixes and mitigations
-===================================================================================================
+---------------------------------------------------------------------------------------------------
 
 I recommend the following fixes, roughly in order of importance:
 
