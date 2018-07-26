@@ -3,11 +3,12 @@ blanket
 
 <!-- Brandon Azad -->
 
-Blanket is a sandbox escape targeting iOS 11.2.6, although most of the issues are still present in
-iOS 11.3. It exploits a Mach port replacement vulnerability in launchd, as well as several smaller
-vulnerabilities in other services, to execute code inside the ReportCrash process, which is
-unsandboxed, runs as root, and has the `task_for_pid-allow` entitlement. This grants blanket
-control over every other process running on the phone, including security-critical ones like amfid.
+Blanket is a sandbox escape targeting iOS 11.2.6, although the main vulnerability was only patched
+in iOS 11.4.1. It exploits a Mach port replacement vulnerability in launchd (CVE-2018-4280), as
+well as several smaller vulnerabilities in other services, to execute code inside the ReportCrash
+process, which is unsandboxed, runs as root, and has the `task_for_pid-allow` entitlement. This
+grants blanket control over every process running on the phone, including security-critical ones
+like amfid.
 
 The exploit consists of several stages. This README will explain the main vulnerability and the
 stages of the sandbox escape step-by-step.
@@ -27,7 +28,7 @@ difficult due to checks in launchd that ensure that the Mach exception message c
 kernel.
 
 
-### The vulnerability: launchd Mach port over-deallocation while handling EXC_CRASH exception messages
+### CVE-2018-4280: launchd Mach port over-deallocation while handling EXC_CRASH exception messages
 
 Launchd multiplexes multiple different Mach message handlers over its main port, including a MIG
 handler for exception messages. If a process sends a `mach_exception_raise` or
@@ -55,11 +56,10 @@ catch_mach_exception_raise(                             // (a) The service routi
         mach_msg_type_number_t codeCnt)
 {
     __int64 __stack_guard;                 // ST28_8@1
-    kern_return_t kr;                      // w0@1
+    kern_return_t kr;                      // w0@1 MAPDST
     kern_return_t result;                  // w0@4
     __int64 codes_left;                    // x25@6
     mach_exception_data_type_t code_value; // t1@7
-    kern_return_t kr2;                     // w0@8 MAPDST
     int pid;                               // [xsp+34h] [xbp-44Ch]@1
     char codes_str[1024];                  // [xsp+38h] [xbp-448h]@7
 
@@ -98,16 +98,16 @@ catch_mach_exception_raise(                             // (a) The service routi
             thread,
             exception,
             codes_str);
-        kr2 = deallocate_port(thread);                  // (c) The "thread" port sent in
-        if ( kr2 )                                      //     the message is deallocated.
+        kr = deallocate_port(thread);                   // (c) The "thread" port sent in
+        if ( kr )                                       //     the message is deallocated.
         {
-            _os_assumes_log(kr2);
+            _os_assumes_log(kr);
             _os_avoid_tail_call();
         }
-        kr2 = deallocate_port(task);                    // (d) The "task" port sent in the
-        if ( kr2 )                                      //     message is deallocated.
+        kr = deallocate_port(task);                     // (d) The "task" port sent in the
+        if ( kr )                                       //     message is deallocated.
         {
-            _os_assumes_log(kr2);
+            _os_assumes_log(kr);
             _os_avoid_tail_call();
         }
         if ( exception == EXC_CRASH )                   // (e) If the exception type is
@@ -142,9 +142,9 @@ means that we'll need the task and thread ports in the exception message to real
 to the Mach service port we want to free in launchd. Then, once we've sent launchd the malicious
 exception message and freed the service port, we will try to get that same port name reused, but
 this time for a Mach port to which we hold the receive right. That way, when a client asks launchd
-to send them the Mach port for the service, launchd will instead send them our port, letting us
-impersonate that service to the client. After that there are many different routes to gain system
-privileges.
+to give them a send right to the Mach port for the service, launchd will instead give them a send
+right to our port, letting us impersonate that service to the client. After that, there are many
+different routes to gain system privileges.
 
 
 ### Triggering the vulnerability
@@ -195,19 +195,20 @@ vulnerability and freeing the Mach service port:
 
 ### Running code after the crash
 
-There's a problem with the above method of freeing the service port: calling `abort` will kill our
-process. Thus, if we want to be able to run any code at all after triggering the vulnerability, we
-need a way to perform the crash in another process.
+There's a problem with the above strategy: calling `abort` will kill our process. If we want to be
+able to run any code at all after triggering the vulnerability, we need a way to perform the crash
+in another process.
 
 (With other exception types a process could actually recover from the exception. The way a process
 would recover is to set its thread exception handler to be launchd and its task exception handler
 to be itself. After launchd processes and fails to handle the exception, the kernel would send the
 exception to the task handler, which would reset the thread state and inform the kernel that the
-exception has been handled. However, a process cannot catch its own `EXC_CRASH` exceptions.)
+exception has been handled. However, a process cannot catch its own `EXC_CRASH` exceptions, so we
+do need two processes.)
 
-One strategy might be to first exploit a vulnerability in another process on iOS and force that
-process to set its kernel ports and crash. However, for a proof-of-concept, it's easier to create
-an app extension.
+One strategy is to first exploit a vulnerability in another process on iOS and force that process
+to set its kernel ports and crash. However, for a proof-of-concept, it's easier to create an app
+extension.
 
 App extensions, introduced in iOS 8, provide a way to package some functionality of an application
 so it is available outside of the application. The code of an app extension runs in a separate,
@@ -218,17 +219,17 @@ There is no supported way for an app to programatically launch its own app exten
 it. However, Ian McDowell wrote a [great article][Multi-Process iOS App Using NSExtension]
 describing how to use the private `NSExtension` API to launch and communicate with an app extension
 process. I've used an almost identical strategy here. The only difference is that we need to
-communicate a Mach port to the app extension process, which involves setting up a dummy service in
-launchd to which the app extension connects.
+communicate a Mach port to the app extension process, which involves registering a dummy service
+with launchd to which the app extension connects.
 
 [Multi-Process iOS App Using NSExtension]: https://ianmcdowell.net/blog/nsextension/
 
 
-### Keeping the freed port free in launchd
+### Preventing port reuse in launchd
 
-One challenge you would notice if you ran the exploit this way is that occasionally you would not
-be able to reacquire the freed port. The reason for this is that the kernel tracks a process's free
-IPC entries in a freelist, and so a just-freed port name will be reused (with a different
+One challenge you would notice if you ran the exploit as described is that occasionally you would
+not be able to reacquire the freed port. The reason for this is that the kernel tracks a process's
+free IPC entries in a freelist, and so a just-freed port name will be reused (with a different
 generation number) when a new port is allocated in the IPC table. Thus, we will only reallocate the
 port name we want if launchd doesn't reuse that IPC entry slot for another port first.
 
@@ -254,27 +255,29 @@ proof-of-concept.
 
 Once we have spawned the crasher app extension and freed a Mach send right in launchd, we need to
 reallocate that Mach port name with a send right to which we hold the receive right. That way, any
-messages sent to that port name will be received by us. In particular, if we free launchd's send
-right to a Mach service, then any processes that request that service from launchd will receive a
-send right to our own port instead of the real service port. This allows us to impersonate the
-service or perform a man-in-the-middle attack, inspecting all messages that the client sends to the
-service.
+messages launchd sends to that port name will be received by us, and any time launchd shares that
+port name with a client, the client will receive a send right to our port. In particular, if we can
+free launchd's send right to a Mach service, then any process that requests that service from
+launchd will receive a send right to our own port instead of the real service port. This allows us
+to impersonate the service or perform a man-in-the-middle attack, inspecting all messages that the
+client sends to the service.
 
-Getting the freed port reused again is also quite simple, given that we've already decided to use
-the application-groups entitlement: just register Mach services with launchd until one of them
-reuses the original port. We'll need to do it in batches, registering a bunch of names together,
-checking them to see if any has successfully used the freed port name, and then deregistering them.
-The reason is that we need to be sure that our registrations go all the way back in the IPC port
-freelist to recover the buried port name we want.
+Getting the freed port name reused so that it refers to a port we own is also quite simple, given
+that we've already decided to use the application-groups entitlement: just register dummy Mach
+services with launchd until one of them reuses the original port name. We'll need to do it in
+batches, registering a large number of dummy services together, checking to see if any has
+successfully reused the freed port name, and then deregistering them. The reason is that we need to
+be sure that our registrations go all the way back in the IPC port freelist to recover the buried
+port name we want.
 
 We can check whether we've managed to successfully reuse the freed port name by looking up the
 original service with `bootstrap_look_up`: if it returns one of our registered service ports, we're
 done.
 
-Once we've managed to register a service that gets the same port name as the original, any clients
-that look up the service in launchd will be given a send right to our port, not the real service
-port. Thus, we are effectively impersonating the original service to the rest of the system (or at
-least, to those processes that look up the service after our attack).
+Once we've managed to register a new service that gets the same port name as the original, any
+clients that look up the original service in launchd will be given a send right to our port, not
+the real service port. Thus, we are effectively impersonating the original service to the rest of
+the system (or at least, to those processes that look up the service after our attack).
 
 
 Stage 1: Obtaining the host-priv port
@@ -283,13 +286,14 @@ Stage 1: Obtaining the host-priv port
 Once we have the capability to impersonate arbitrary system services, the next step is to obtain
 the host-priv port. This step is straightforward, and is not affected by the changes in iOS 11.3.
 The high-level idea of this attack is to impersonate SafetyNet, crash ReportCrash, and then
-retrieve the host-priv port from the dying ReportCrash task.
+retrieve the host-priv port from the dying ReportCrash task port sent in the exception message.
 
 
 ### About ReportCrash and SafetyNet
 
 ReportCrash is responsible for generating crash reports on iOS. This one binary actually vends 4
-different services (each in a different process, although some are on-demand):
+different services (each in a different process, although not all may be running at any given
+time):
 
 1. `com.apple.ReportCrash` is responsible for generating crash reports for crashing processes. It
    is the host-level exception handler for `EXC_CRASH`, `EXC_GUARD`, and `EXC_RESOURCE` exceptions.
@@ -310,7 +314,7 @@ ReportCrash and SafetyNet only handle `mach_exception_raise_state_identity` mess
 both services are still present and reachable from within the iOS container sandbox.
 
 
-### Manipulating ReportCrash
+### ReportCrash manipulation primitives
 
 In order to carry out the following attack, we need to be able to manipulate ReportCrash (or
 SafetyNet) to behave in the way we want. Specifically, we need the following capabilities: start
@@ -345,7 +349,7 @@ can simply not reply to the Mach message, and ReportCrash will wait indefinitely
 
 ### Extracting host-priv from ReportCrash
 
-The attack plan is relatively straightforward:
+For the first stage of the exploit, the attack plan is relatively straightforward:
 
 1. Start the SafetyNet service and force it to stay alive for the duration of our attack.
 2. Use the launchd service impersonation primitive to impersonate SafetyNet. This gives us a new
@@ -359,14 +363,13 @@ The attack plan is relatively straightforward:
    original exception type, ReportCrash will enter the process death phase. At this point XNU will
    see that ReportCrash registered the fake SafetyNet port to receive `EXC_CRASH` exceptions, so it
    will generate an exception message and send it to that port.
-6. We can then listen on the fake SafetyNet port for the `EXC_CRASH` message. It will be of type
+6. We then listen on the fake SafetyNet port for the `EXC_CRASH` message. It will be of type
    `mach_exception_raise`, which means it will contain ReportCrash's task port.
-7. Finally, we can use `task_get_special_port` on the ReportCrash task port to get ReportCrash's
-   host port. Since ReportCrash is unsandboxed and runs as root, this will be the host-priv port.
+7. Finally, we use `task_get_special_port` on the ReportCrash task port to get ReportCrash's host
+   port. Since ReportCrash is unsandboxed and runs as root, this is the host-priv port.
 
 At the end of this stage of the sandbox escape, we end up with a usable host-priv port. This alone
-should show that there's a serious security issue here, even though the subsequent stage is broken
-by changes in iOS 11.3.
+demonstrates that this is a serious security issue.
 
 
 Stage 2: Escaping the sandbox
@@ -382,7 +385,7 @@ leave the system unstable if it or subsequent stages fail, so it's worth putting
 
 The high-level attack is to use the same launchd vulnerability again to impersonate a system
 service. However, this time our goal is to impersonate a service to which a client will send its
-task port in a Mach message. It's quite easy to find by experimentation on iOS 11.2.6 that if you
+task port in a Mach message. It's easy to find by experimentation on iOS 11.2.6 that if we
 impersonate `com.apple.CARenderServer` (hereafter CARenderServer) hosted by backboardd and then
 communicate with `com.apple.DragUI.druid.source`, the unsandboxed druid daemon will send its task
 port in a Mach message to the fake service port.
@@ -442,7 +445,9 @@ memory or when `_xpc_serializer_advance` tries to advance the serializer past th
 supplied data.
 
 This bug was already fixed in iOS 11.3 Beta by the time I discovered it, so I did not report it to
-Apple.
+Apple. The exploit is available as an independent project in my [xpc-crash] repository.
+
+[xpc-crash]: https://github.com/bazad/xpc-crash
 
 In order to use this bug to crash druid, we simply need to send the druid service a malformed XPC
 message such that the dictionary's key is unterminated and extends to the last byte of the message.
@@ -541,10 +546,12 @@ modifiable thread rights. And since there's no equivalent `thread_conversion_eva
 can use the Mach thread APIs to modify the threads in a task even if that task is a platform
 binary.
 
-In order to take advantage of this, I wrote a library called threadexec which builds a
+In order to take advantage of this, I wrote a library called [threadexec] which builds a
 full-featured function call capability on top of the Mach threads API. The threadexec project in
 and of itself was a significant undertaking, but as it is only indirectly relevant to this exploit,
 I will forego a detailed explanation of its inner workings.
+
+[threadexec]: https://github.com/bazad/threadexec
 
 
 Stage 3: Installing a new host-level exception handler
@@ -557,14 +564,14 @@ straightforward given our current capabilities:
 1. Get the current host-level exception handler for `EXC_BAD_ACCESS` by calling
    `host_get_exception_ports`.
 2. Allocate a Mach port that will be the new host-level exception handler for `EXC_BAD_ACCESS`.
-3. Send the host-priv port and the Mach port we just allocated over to druid.
+3. Send the host-priv port and a send right to the Mach port we just allocated over to druid.
 4. Using our execution context in druid, make druid call `host_set_exception_ports` to register our
    Mach port as the host-level exception handler for `EXC_BAD_ACCESS`.
 
-After this stage, any `EXC_BAD_ACCESS` exception messages generated by a process without a
-registered exception handler will be sent to our new exception handler port. This will give us the
-task port of any crashing process, and since `EXC_BAD_ACCESS` is a recoverable exception, this time
-we can use those task ports.
+After this stage, any time a process accesses an invalid memory address (and also does not have a
+registered exception handler), an `EXC_BAD_ACCESS` exception message will be sent to our new
+exception handler port. This will give us the task port of any crashing process, and since
+`EXC_BAD_ACCESS` is a recoverable exception, this time we can use the task port to execute code.
 
 
 Stage 4: Getting ReportCrash's task port
@@ -599,6 +606,9 @@ for `EXC_BAD_ACCESS` using druid:
 2. Call `host_set_exception_ports` in druid to re-register the old host-level exception handler for
    `EXC_BAD_ACCESS`.
 
+This will stop our exception handler port from receiving exception messages for other crashing
+processes.
+
 
 Stage 6: Fixing up launchd
 ---------------------------------------------------------------------------------------------------
@@ -614,7 +624,9 @@ namespace in order to impersonate them:
     3. Call `mach_port_insert_right` in ReportCrash to push the real service port into launchd's
        IPC space under the original name.
 
-After this step is done, the system should be functional again.
+After this step is done, the system should once again be fully functional. After successful
+exploitation, there should be no need to force reset the device, since the exploit repairs all the
+damages itself.
 
 
 Post-exploitation
@@ -627,14 +639,16 @@ section will describe how that is achieved.
 ### Spawning a payload process
 
 Even after gaining code execution in ReportCrash, using that capability is not easy: we are limited
-to individual function calls in the privileged process, which makes it painful to make ReportCrash
-perform complex tasks. Ideally, we'd like a way to run code natively with ReportCrash's privileges,
-either by injecting code into ReportCrash or by spawning a new process.
+to performing individual function calls from within the process, which makes it painful to perform
+complex tasks. Ideally, we'd like a way to run code natively with ReportCrash's privileges, either
+by injecting code into ReportCrash or by spawning a new process with the same (or higher)
+privileges.
 
 Blanket chooses the process spawning route. We use `task_for_pid` and our platform binary status in
-ReportCrash to get launchd's task port and create a new thread that we can control. We then use
-that thread to call `posix_spawn` to launch our payload binary. The payload binary can be signed
-with restricted entitlements, including `task_for_pid-allow`, to grant additional capabilities.
+ReportCrash to get launchd's task port and create a new thread inside of launchd that we can
+control. We then use that thread to call `posix_spawn` to launch our payload binary. The payload
+binary can be signed with restricted entitlements, including `task_for_pid-allow`, to grant
+additional capabilities.
 
 
 ### Bypassing amfid
@@ -648,8 +662,8 @@ to pretend that the code signature is valid.
 However, there's another approach which I believe is more robust and flexible: rather than patching
 amfid at all, we can simply register a new amfid port in the kernel.
 
-The kernel keeps track of which port to send messages to amfid using the a host special port called
-HOST_AMFID_PORT. If we have unsandboxed root code execution, we can set this port to a new value.
+The kernel keeps track of which port to send messages to amfid using a host special port called
+`HOST_AMFID_PORT`. If we have unsandboxed root code execution, we can set this port to a new value.
 Apple has protected against this attack by checking whether the reply to a validation request
 really came from amfid: the cdhash of the sender is compared to amfid's cdhash. However, this
 doesn't actually prevent the message from being sent to a process other than amfid; it only
@@ -685,7 +699,8 @@ verify_code_directory(
 Of particular interest for jailbreak developers is the `is_apple` parameter. This parameter does
 not appear to be used by amfid, but if set, it will cause the kernel to set the
 `CS_PLATFORM_BINARY` codesigning flag, which grants the application platform binary privileges. In
-particular, this means that the application can now use task ports to modify platform binaries.
+particular, this means that the application can now use task ports to modify platform binaries
+directly.
 
 
 Loopholes used in this attack
@@ -736,6 +751,68 @@ I recommend the following fixes, roughly in order of importance:
    of the host-priv port under some configurations. This violates the elegant capabilities-based
    design of Mach, but `host_set_exception_ports` might be a promising target for abuse.
 8. Consider whether it's worth adding `task_conversion_eval` to `task_inspect_t`.
+
+
+Running blanket
+---------------------------------------------------------------------------------------------------
+
+Blanket should work on any device running iOS 11.2.6.
+
+1. Download the project:
+   ```
+   git clone https://github.com/bazad/blanket
+   cd blanket
+   ```
+2. Download and build the threadexec library, which is required for blanket to inject code in
+   processes and tasks:
+   ```
+   git clone https://github.com/bazad/threadexec
+   cd threadexec
+   make ARCH=arm64 SDK=iphoneos
+   cd ..
+   ```
+3. Download Jonathan Levin's [iOS binpack], which contains the binaries that will be used by the
+   bind shell. If you change the payload to do something else, you won't need the binpack.
+   ```
+   mkdir binpack
+   curl http://newosxbook.com/tools/binpack64-256.tar.gz | tar -xf- -C binpack
+   ```
+4. Open Xcode and configure the project. You will need to change the signing identifier and specify
+   a custom application group entitlement.
+5. Edit the file `headers/config.h` and change `APP_GROUP` to whatever application group identifier
+   you specified earlier.
+
+[iOS binpack]: http://newosxbook.com/tools/iOSBinaries.html
+
+After that, you should be able to build and run the project on the device.
+
+If blanket is successful, it will run the payload binary (source in
+`blanket_payload/blanket_payload.c`), which by default spawns a bind shell on port 4242. You can
+connect to that port with netcat and run arbitrary shell commands.
+
+
+Credits
+---------------------------------------------------------------------------------------------------
+
+Many thanks to Ian Beer and Jonathan Levin for their excellent iOS security and internals research.
+
+
+Timeline
+---------------------------------------------------------------------------------------------------
+
+I discovered this vulnerability in January of 2018, and started developing the exploit in late
+February. I reported this issue to Apple on April 13. Apple assigned the Mach port replacement
+vulnerability in launchd CVE-2018-4280, and it was patched in [iOS 11.4.1] and [macOS 10.13.6] on
+July 9.
+
+[iOS 11.4.1]: https://support.apple.com/en-us/HT208938
+[macOS 10.13.6]: https://support.apple.com/en-us/HT208937
+
+
+License
+---------------------------------------------------------------------------------------------------
+
+Blanket is released under the MIT license.
 
 
 ---------------------------------------------------------------------------------------------------
