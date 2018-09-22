@@ -768,7 +768,7 @@ Blanket should work on any device running iOS 11.2.6.
    ```
    git clone https://github.com/bazad/threadexec
    cd threadexec
-   make ARCH=arm64 SDK=iphoneos
+   make ARCH=arm64 SDK=iphoneos EXTRA_CFLAGS='-mios-version-min=11.1 -fembed-bitcode'
    cd ..
    ```
 3. Download Jonathan Levin's [iOS binpack], which contains the binaries that will be used by the
